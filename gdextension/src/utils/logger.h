@@ -9,10 +9,11 @@ using namespace godot;
 class Logger : public RefCounted {
     GDCLASS(Logger, RefCounted);
 
-    godot::String logger_name;
+    String logger_name;
 
    private:
     void _log(const String &p_message, const int p_type);
+    static String _insert_metadata(const String &p_message_id, const String &p_message);
 
    protected:
     static void _bind_methods();
@@ -39,6 +40,8 @@ class Logger : public RefCounted {
     void debug(const String &p_message);
     void trace(const String &p_message);
     void error(const String &p_message);
+
+    static void global_log(const String &p_message_id, const String &p_message);
 
     Logger() {}
     ~Logger() {}

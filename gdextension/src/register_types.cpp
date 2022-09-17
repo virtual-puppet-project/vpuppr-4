@@ -5,8 +5,8 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
+#include "model/result.h"
 #include "utils/logger.h"
-#include "utils/safely.h"
 
 using namespace godot;
 
@@ -15,7 +15,8 @@ void initialize_vpuppr_module(ModuleInitializationLevel p_level) {
         return;
     }
     ClassDB::register_class<Logger>();
-    ClassDB::register_class<SafeError>();
+    ClassDB::register_class<Result>();
+    ClassDB::register_class<ErrorResult>();
 }
 
 void uninitialize_vpuppr_module(ModuleInitializationLevel p_level) {

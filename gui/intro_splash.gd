@@ -1,5 +1,14 @@
 extends CanvasLayer
 
+var viewport: Viewport
+var screen_center := Vector2.ZERO
+var max_parallax_offset := Vector2.ZERO
+
+var background: TextureRect
+var foreground: TextureRect
+
+
+
 #-----------------------------------------------------------------------------#
 # Builtin functions                                                           #
 #-----------------------------------------------------------------------------#
@@ -15,8 +24,8 @@ func _ready() -> void:
 	DisplayServer.window_set_size(new_window_size)
 	DisplayServer.window_set_position((current_screen_size * 0.5) - (new_window_size * 0.5))
 	
-	var logger = Logger.emplace("IntroSplash")
-	logger.debug("asdf")
+	var res = Result.err(ERR_BUG, "asdf");
+	print(res.unwrap_err());
 
 #-----------------------------------------------------------------------------#
 # Connections                                                                 #

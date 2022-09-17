@@ -13,9 +13,15 @@ _global_script_classes=[{
 "class": &"AppManager",
 "language": &"GDScript",
 "path": "res://utils/app_manager.gd"
+}, {
+"base": "Object",
+"class": &"NodeUtils",
+"language": &"GDScript",
+"path": "res://utils/node_utils.gd"
 }]
 _global_script_class_icons={
-"AppManager": ""
+"AppManager": "",
+"NodeUtils": ""
 }
 
 [application]

@@ -3,11 +3,11 @@
 #include <godot_cpp/classes/time.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-void Logger::_log(const String &p_message, const int p_type) {
+String Logger::_insert_metadata(const String &p_message_id, const String &p_message) {
     Dictionary datetime = Time::get_singleton()->get_datetime_dict_from_system();
 
     Array arr;
-    arr.append(logger_name);
+    arr.append(p_message_id);
     arr.append(datetime["year"]);
     arr.append(datetime["month"]);
     arr.append(datetime["day"]);
@@ -16,27 +16,32 @@ void Logger::_log(const String &p_message, const int p_type) {
     arr.append(datetime["second"]);
     arr.append(p_message);
 
-    // Extra space inserted at beginning intentionally
-    String formatted_message = String(" {0} {1}-{2}-{3}_{4}:{5}:{6} {7}").format(arr);
+    return String("{0} {1}-{2}-{3}_{4}:{5}:{6} {7}").format(arr);
+}
+
+void Logger::_log(const String &p_message, const int p_type) {
+    String formatted_message = _insert_metadata(logger_name, p_message);
+
     String prefix;
 
     switch (p_type) {
         case NOTIFY:
+            // TODO stub
             // Display some stuff and then fall through into INFO
         case INFO:
-            prefix = String("[INFO]");
+            prefix = String("[INFO] ");
             break;
         case DEBUG:
-            prefix = String("[DEBUG]");
+            prefix = String("[DEBUG] ");
             break;
         case TRACE:
-            prefix = String("[TRACE]");
+            prefix = String("[TRACE] ");
             break;
         case ERROR:
-            prefix = String("[ERROR]");
+            prefix = String("[ERROR] ");
             break;
         default:
-            arr.clear();
+            Array arr;
             arr.append(p_message);
             arr.append(p_type);
 
@@ -70,9 +75,11 @@ void Logger::error(const String &p_message) {
     _log(p_message, ERROR);
 }
 
-void Logger::setup(const godot::String &p_name) {
-    UtilityFunctions::print(p_name);
+void Logger::global_log(const String &p_message_id, const String &p_message) {
+    UtilityFunctions::print(String("[GLOBAL] "), _insert_metadata(p_message_id, p_message));
+}
 
+void Logger::setup(const godot::String &p_name) {
     logger_name = p_name;
 }
 
@@ -93,6 +100,7 @@ void Logger::_bind_methods() {
     ClassDB::bind_method(D_METHOD("setup", "logger_name"), &Logger::setup, DEFVAL(godot::String()));
     ClassDB::bind_static_method(
         "Logger", D_METHOD("emplace", "logger_name"), &Logger::emplace, DEFVAL(godot::String()));
+    ClassDB::bind_static_method("Logger", D_METHOD("global_log", "message"), &Logger::global_log);
 
     BIND_CONSTANT(NOTIFY);
     BIND_CONSTANT(INFO);
