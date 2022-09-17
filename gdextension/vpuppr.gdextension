@@ -1,0 +1,9 @@
+[configuration]
+
+entry_symbol = "vpuppr_library_init"
+
+[libraries]
+
+windows.debug.x86_64 = "./out/libvpuppr.windows.debug.x86_64.dll"
+windows.release_x86_64 = "./out/libvpuppr.windows.release.x86_64.dll"
+
