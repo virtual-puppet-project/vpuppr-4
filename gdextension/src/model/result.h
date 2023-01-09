@@ -1,9 +1,26 @@
 #ifndef RESULT_H
 #define RESULT_H
 
+#include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 
 using namespace godot;
+
+class Tester : public Node {
+    GDCLASS(Tester, Node);
+
+    String description;
+
+   protected:
+    static void _bind_methods();
+
+   public:
+    String get_description() const;
+    void set_description(const String &p_name);
+
+    Tester() {}
+    ~Tester() {}
+};
 
 class ErrorResult : public RefCounted {
     GDCLASS(ErrorResult, RefCounted);

@@ -37,7 +37,7 @@ else:
     library = env.SharedLibrary(
         "{}/{}.{}.{}.{}{}".format(
             OUTPUT_DIR,
-            EXTENSION_NAME, env["platform"], env["target"], env["arch_suffix"], env["SHLIBSUFFIX"]
+            EXTENSION_NAME, env["platform"], env["target"], env["suffix"], env["SHLIBSUFFIX"]
         ),
         source=sources
     )

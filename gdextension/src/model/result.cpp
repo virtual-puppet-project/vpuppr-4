@@ -1,5 +1,19 @@
 #include "result.h"
 
+String Tester::get_description() const {
+    return description;
+}
+
+void Tester::set_description(const String &p_description) {
+    description = p_description;
+}
+
+void Tester::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_description"), &Tester::get_description);
+    ClassDB::bind_method(D_METHOD("set_description", "description"), &Tester::set_description);
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "description", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_description", "get_description");
+}
+
 String ErrorResult::_to_string() {
     Array arr;
     arr.append(name.is_empty() ? String("") : String("Name: ") + name + String(" "));

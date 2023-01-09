@@ -18,19 +18,29 @@ _global_script_classes=[{
 "class": &"NodeUtils",
 "language": &"GDScript",
 "path": "res://utils/node_utils.gd"
+}, {
+"base": "Node3D",
+"class": &"VRMTopLevel",
+"language": &"GDScript",
+"path": "res://addons/vrm/vrm_toplevel.gd"
 }]
 _global_script_class_icons={
 "AppManager": "",
-"NodeUtils": ""
+"NodeUtils": "",
+"VRMTopLevel": ""
 }
 
 [application]
 
 config/name="vpuppr-4"
-run/main_scene="res://gui/intro_splash.tscn"
-config/features=PackedStringArray("4.0", "Vulkan Clustered")
-config/icon="res://icon.svg"
+run/main_scene="res://screens/main.tscn"
+config/features=PackedStringArray("4.0")
+config/icon="res://assets/icon.svg"
 
 [autoload]
 
 AM="*res://utils/app_manager.gd"
+
+[editor]
+
+script/templates_search_path="res://script-templates"

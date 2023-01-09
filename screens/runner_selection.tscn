@@ -1,0 +1,132 @@
+[gd_scene load_steps=6 format=3 uid="uid://ciuo13pui3oi8"]
+
+[ext_resource type="Script" path="res://screens/runner_selection.gd" id="1_sr8va"]
+[ext_resource type="Texture2D" uid="uid://bs0te2rd3nh5i" path="res://assets/VpupprDucksBG.png" id="2_plyv3"]
+[ext_resource type="Texture2D" uid="uid://ds1og3djgjawf" path="res://assets/VpupprDuck.png" id="3_ec3eh"]
+[ext_resource type="Texture2D" uid="uid://b6q6bda27jgek" path="res://assets/VpupprLogo.png" id="4_smwor"]
+[ext_resource type="Texture2D" uid="uid://c12ilbj836168" path="res://assets/VpupprSubLogo.png" id="5_x2urm"]
+
+[node name="RunnerSelection" type="CanvasLayer"]
+script = ExtResource("1_sr8va")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12549, 0.141176, 0.192157, 1)
+
+[node name="DucksBackgroundAnchor" type="Control" parent="."]
+layout_mode = 3
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="DucksBackground" type="TextureRect" parent="DucksBackgroundAnchor"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -1747.5
+offset_top = -1172.0
+offset_right = 1747.5
+offset_bottom = 1172.0
+scale = Vector2(0.75, 0.75)
+pivot_offset = Vector2(1747.5, 1172)
+mouse_filter = 2
+texture = ExtResource("2_plyv3")
+
+[node name="DuckAnchor" type="Control" parent="."]
+layout_mode = 3
+anchor_left = 0.23
+anchor_top = 0.5
+anchor_right = 0.23
+anchor_bottom = 0.5
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Duck" type="TextureRect" parent="DuckAnchor"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -294.5
+offset_top = -420.0
+offset_right = 294.5
+offset_bottom = 420.0
+scale = Vector2(0.6, 0.6)
+pivot_offset = Vector2(294.5, 420)
+mouse_filter = 2
+texture = ExtResource("3_ec3eh")
+
+[node name="LogoAnchor" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchor_left = 0.7
+anchor_top = 0.4
+anchor_right = 0.7
+anchor_bottom = 0.4
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Logo" type="TextureRect" parent="LogoAnchor"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -492.5
+offset_top = -115.0
+offset_right = 492.5
+offset_bottom = 115.0
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(492.5, 115)
+mouse_filter = 2
+texture = ExtResource("4_smwor")
+
+[node name="SubLogoAnchor" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchor_left = 0.7
+anchor_top = 0.55
+anchor_right = 0.7
+anchor_bottom = 0.6
+mouse_filter = 2
+
+[node name="SubLogo" type="TextureRect" parent="SubLogoAnchor"]
+unique_name_in_owner = true
+offset_left = -492.5
+offset_top = -27.5
+offset_right = 492.5
+offset_bottom = 27.5
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(492.5, 27.5)
+mouse_filter = 2
+texture = ExtResource("5_x2urm")
+
+[node name="Fade" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="RunnerContainer" type="ScrollContainer" parent="."]
+anchors_preset = -1
+anchor_left = 0.4
+anchor_top = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Runners" type="VBoxContainer" parent="RunnerContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+offset_right = 671.2
+size_flags_horizontal = 3
