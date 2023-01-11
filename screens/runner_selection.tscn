@@ -1,10 +1,21 @@
-[gd_scene load_steps=6 format=3 uid="uid://ciuo13pui3oi8"]
+[gd_scene load_steps=7 format=3 uid="uid://ciuo13pui3oi8"]
 
 [ext_resource type="Script" path="res://screens/runner_selection.gd" id="1_sr8va"]
 [ext_resource type="Texture2D" uid="uid://bs0te2rd3nh5i" path="res://assets/VpupprDucksBG.png" id="2_plyv3"]
 [ext_resource type="Texture2D" uid="uid://ds1og3djgjawf" path="res://assets/VpupprDuck.png" id="3_ec3eh"]
 [ext_resource type="Texture2D" uid="uid://b6q6bda27jgek" path="res://assets/VpupprLogo.png" id="4_smwor"]
 [ext_resource type="Texture2D" uid="uid://c12ilbj836168" path="res://assets/VpupprSubLogo.png" id="5_x2urm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0xjd"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 0.270588)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="RunnerSelection" type="CanvasLayer"]
 script = ExtResource("1_sr8va")
@@ -104,7 +115,7 @@ pivot_offset = Vector2(492.5, 27.5)
 mouse_filter = 2
 texture = ExtResource("5_x2urm")
 
-[node name="RunnerContainer" type="VBoxContainer" parent="."]
+[node name="RunnerContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 visible = false
 anchor_left = 0.4
@@ -118,19 +129,28 @@ offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_r0xjd")
 
-[node name="HFlowContainer" type="HFlowContainer" parent="RunnerContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="RunnerContainer"]
 layout_mode = 2
 
-[node name="LoadModel" type="Button" parent="RunnerContainer/HFlowContainer"]
+[node name="HFlowContainer" type="HFlowContainer" parent="RunnerContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="LoadModel" type="Button" parent="RunnerContainer/VBoxContainer/HFlowContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Load Model"
 
-[node name="SortLabel" type="Label" parent="RunnerContainer/HFlowContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="RunnerContainer/VBoxContainer/HFlowContainer"]
 layout_mode = 2
-text = "Sort"
 
-[node name="SortRunners" type="OptionButton" parent="RunnerContainer/HFlowContainer"]
+[node name="SortLabel" type="Label" parent="RunnerContainer/VBoxContainer/HFlowContainer/HBoxContainer"]
+layout_mode = 2
+text = "Sort:"
+
+[node name="SortRunners" type="OptionButton" parent="RunnerContainer/VBoxContainer/HFlowContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 item_count = 2
 selected = 0
@@ -139,11 +159,15 @@ popup/item_0/id = 0
 popup/item_1/text = "Name"
 popup/item_1/id = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="RunnerContainer"]
+[node name="SortDirection" type="Label" parent="RunnerContainer/VBoxContainer/HFlowContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="RunnerContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Runners" type="VBoxContainer" parent="RunnerContainer/ScrollContainer"]
+[node name="Runners" type="VBoxContainer" parent="RunnerContainer/VBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

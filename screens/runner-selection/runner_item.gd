@@ -19,6 +19,8 @@ var model: Label = %Model
 @onready
 var last_used: Label = %LastUsed
 
+var last_used_datetime: Datetime = null
+
 var _panel: StyleBoxFlat = self.get_indexed("theme_override_styles/panel").duplicate()
 
 #-----------------------------------------------------------------------------#
@@ -71,9 +73,18 @@ func init_favorite(is_favorite: bool) -> void:
 	favorite.set_pressed_no_signal(is_favorite)
 
 func init_preview(path: String) -> void:
-	var texture: Texture = load(path)
-	if texture == null:
-		Logger.global("RunnerItem[%s]" % title.text, "Unable to load preview from %s" % path)
-		return
-	
-	preview.texture = texture
+	var logger_id := "RunnerItem[%s]" % title.text
+	match path.get_extension().to_lower():
+		"png", "jpg", "jpeg", "tga", "webp":
+			# TODO (Tim Yuen) check if this returns null if loading fails
+			var image := Image.load_from_file(path)
+			if image == null:
+				Logger.global(logger_id, "File not found %s" % path)
+				return
+			
+			preview.texture = ImageTexture.create_from_image(image)
+		_:
+			Logger.global(logger_id, "Unhandled file type %s" % path)
+			
+			var image := Image.create(64, 64, false, Image.FORMAT_RGB8)
+			preview.texture = ImageTexture.create_from_image(image)

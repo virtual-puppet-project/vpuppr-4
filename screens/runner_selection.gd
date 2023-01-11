@@ -6,6 +6,11 @@ const LOGO_TWEEN_TIME: float = 1.5
 const START_RUNNER_TWEEN_TIME: float = 0.5
 const CLEAR_COLOR := Color("00000000")
 
+const SortDirection := {
+	"ASCENDING": "Ascending",
+	"DESCENDING": "Descending"
+}
+
 var max_parallax_offset := Vector2(32.0, 18.0)
 
 var _logger := Logger.emplace("RunnerSelection")
@@ -37,10 +42,13 @@ var _parallax_elements: Array[TextureRect] = [
 var _parallax_initial_positions := {}
 
 @onready
-var _runner_container: VBoxContainer = %RunnerContainer
+var _runner_container: PanelContainer = %RunnerContainer
 @onready
 var _runners: VBoxContainer = %Runners
-var _init_runners_thread := Thread.new()
+
+var _last_sort_type: int = 0
+## Needed so sorted can be un-reversed. Starts at 0 so everything is sorted as ascending to start.
+var _last_last_sort_type: int = 0
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
@@ -49,7 +57,73 @@ var _init_runners_thread := Thread.new()
 func _ready() -> void:
 	_adapt_screen_size()
 	
-	_init_runners_thread.start(func() -> void:
+	%LoadModel.pressed.connect(func() -> void:
+		pass
+	)
+	var sort_direction: Label = %SortDirection
+	var sort_runners_popup: PopupMenu = %SortRunners.get_popup()
+	sort_runners_popup.index_pressed.connect(func(idx: int) -> void:
+		var reversed := idx == _last_sort_type
+		if _last_sort_type == _last_last_sort_type:
+			_last_last_sort_type = -1
+			reversed = false
+		else:
+			_last_last_sort_type = _last_sort_type
+		_last_sort_type = idx
+		
+		var children := _runners.get_children()
+		for c in children:
+			_runners.remove_child(c)
+		
+		match idx:
+			0: # Last used
+				children.sort_custom(func(a: Control, b: Control) -> bool:
+					var dt_a: Datetime = a.last_used_datetime
+					var dt_b: Datetime = b.last_used_datetime
+					
+					if (
+						dt_a.year < dt_b.year or
+						dt_a.month < dt_b.month or
+						dt_a.day < dt_b.day or
+						dt_a.hour < dt_b.hour or
+						dt_a.minute < dt_b.minute or
+						dt_a.second < dt_b.second
+					):
+						return true
+					
+					return false
+				)
+			1: # Name
+				var titles: Array[String] = []
+				children.sort_custom(func(a: Control, b: Control) -> bool:
+					titles.clear()
+					
+					# Empty values displayed first
+					if a.title.text.is_empty():
+						return false
+					if b.title.text.is_empty():
+						return false
+					if a.title.text == b.title.text:
+						return false
+					
+					titles = [a.title.text, b.title.text]
+					titles.sort()
+					
+					return titles.back() == b.title.text
+				)
+		
+		if reversed:
+			children.reverse()
+			sort_direction.text = SortDirection.DESCENDING
+		else:
+			sort_direction.text = SortDirection.ASCENDING
+		
+		for c in children:
+			_runners.add_child(c)
+	)
+	
+	var init_runners_thread := Thread.new()
+	init_runners_thread.start(func() -> void:
 		# TODO testing only, need to pull these values from metadata
 		for i in (func() -> Array:
 			var r := []
@@ -71,6 +145,7 @@ func _ready() -> void:
 				d1.runner_path = "res://screens/runners/runner_3d.tscn"
 				d1.gui_path = "res://gui/standard_gui.tscn"
 				d1.model_path = "some/other/model.glb"
+				d1.preview_path = "C:/Users/theaz/Pictures/astro.png"
 				
 				r.append(d1)
 				
@@ -126,6 +201,7 @@ func _ready() -> void:
 			item.title.text = i.name
 			item.model.text = i.model_path.get_file()
 			item.last_used.text = i.last_used.to_string()
+			item.last_used_datetime = i.last_used
 			# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
 			# directly throws an error in a thread. An indirect error is fine though
 			item.init_preview(i.preview_path)
@@ -173,9 +249,15 @@ func _ready() -> void:
 	)
 	
 	tween.play()
-
-func _exit_tree() -> void:
-	_init_runners_thread.wait_to_finish()
+	
+	self.ready.connect(func() -> void:
+		while init_runners_thread.is_alive():
+			await get_tree().process_frame
+		init_runners_thread.wait_to_finish()
+		init_runners_thread = null
+		
+		sort_runners_popup.index_pressed.emit(0)
+	)
 
 func _notification(what: int) -> void:
 	match what:
