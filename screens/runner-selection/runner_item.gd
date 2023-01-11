@@ -69,3 +69,11 @@ func _gui_input(event: InputEvent) -> void:
 func init_favorite(is_favorite: bool) -> void:
 	favorite.modulate = FAVORITE_COLOR if is_favorite else NOT_FAVORITE_COLOR
 	favorite.set_pressed_no_signal(is_favorite)
+
+func init_preview(path: String) -> void:
+	var texture: Texture = load(path)
+	if texture == null:
+		Logger.global("RunnerItem[%s]" % title.text, "Unable to load preview from %s" % path)
+		return
+	
+	preview.texture = texture

@@ -35,9 +35,9 @@ if env["platform"] == "macos":
     )
 else:
     library = env.SharedLibrary(
-        "{}/{}.{}.{}.{}{}".format(
+        "{}/{}.{}.{}{}".format(
             OUTPUT_DIR,
-            EXTENSION_NAME, env["platform"], env["target"], env["suffix"], env["SHLIBSUFFIX"]
+            EXTENSION_NAME, env["platform"], env["target"], env["SHLIBSUFFIX"]
         ),
         source=sources
     )

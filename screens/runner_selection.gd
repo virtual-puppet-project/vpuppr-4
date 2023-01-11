@@ -2,7 +2,9 @@ extends CanvasLayer
 
 const RunnerItem: PackedScene = preload("res://screens/runner-selection/runner_item.tscn")
 
-const LOGO_TWEEN_TIME: float = 2.0
+const LOGO_TWEEN_TIME: float = 1.5
+const START_RUNNER_TWEEN_TIME: float = 0.5
+const CLEAR_COLOR := Color("00000000")
 
 var max_parallax_offset := Vector2(32.0, 18.0)
 
@@ -13,6 +15,8 @@ var _viewport: Viewport = get_viewport()
 @onready
 var _screen_center: Vector2 = _viewport.size / 2.0
 
+@onready
+var _fade: ColorRect = %Fade
 @onready
 var _ducks_background: TextureRect = %DucksBackground
 @onready
@@ -33,7 +37,9 @@ var _parallax_elements: Array[TextureRect] = [
 var _parallax_initial_positions := {}
 
 @onready
-var runners: VBoxContainer = %Runners
+var _runner_container: VBoxContainer = %RunnerContainer
+@onready
+var _runners: VBoxContainer = %Runners
 var _init_runners_thread := Thread.new()
 
 #-----------------------------------------------------------------------------#
@@ -45,38 +51,84 @@ func _ready() -> void:
 	
 	_init_runners_thread.start(func() -> void:
 		# TODO testing only, need to pull these values from metadata
-		for i in [{
-			"favorite": true,
-			"preview": "res://assets/VpupprDuck.png",
-			"title": "Testing",
-			"model": "my_model_name.vrm",
-			"last_used": "some:date"
-		},
-		{
-			"favorite": true,
-			"preview": "res://assets/VpupprDuck.png",
-			"title": "Another runner i guess",
-			"model": "SomeModel.glb",
-			"last_used": "some:date"
-		}]:
+		for i in (func() -> Array:
+			var r := []
+			
+			for i in 10:
+				var d0 := RunnerData.new()
+				d0.name = "Test 0"
+				d0.runner_path = "res://screens/runners/runner_3d.tscn"
+				d0.gui_path = "res://gui/standard_gui.tscn"
+				d0.model_path = "some/path/to/model.vrm"
+				d0.preview_path = "res://assets/VpupprDuck.png"
+				d0.last_used.day = 123
+				d0.favorite = true
+				
+				r.append(d0)
+				
+				var d1 := RunnerData.new()
+				d1.name = "Some other data"
+				d1.runner_path = "res://screens/runners/runner_3d.tscn"
+				d1.gui_path = "res://gui/standard_gui.tscn"
+				d1.model_path = "some/other/model.glb"
+				
+				r.append(d1)
+				
+				var d2 := RunnerData.new()
+				d2.name = "Bad data"
+				d2.runner_path = ""
+				d2.gui_path = ""
+				d2.model_path = ""
+				
+				r.append(d2)
+			
+			return r
+		).call():
 			var item := RunnerItem.instantiate()
 			item.clicked.connect(func() -> void:
-				_logger.info(item.to_string())
+				var handler := RunnerHandler.new(i)
+				if handler.get_child_count() < 1:
+					_logger.error(
+						"An error occurred while loading the runner, declining to start handler")
+					handler.free()
+					return
+				
+				var st := get_tree()
+				
+				var tween := st.create_tween()
+				tween.tween_property(_fade, "color", Color.BLACK, START_RUNNER_TWEEN_TIME)
+				
+				await tween.finished
+				
+				st.root.add_child(handler)
+				st.current_scene = handler
+				
+				# TODO (Tim Yuen) weird hack to force the fade effect to continue when the
+				# current_scene has changed
+				remove_child(_fade)
+				st.root.add_child(_fade)
+				
+				self.visible = false
+				
+				tween = st.create_tween()
+				tween.tween_property(_fade, "color", CLEAR_COLOR, START_RUNNER_TWEEN_TIME)
+				
+				await tween.finished
+				
+				_fade.queue_free()
+				
+				self.queue_free()
 			)
 			
-			runners.add_child(item)
+			_runners.add_child(item)
 			
 			item.init_favorite(i.favorite)
-			item.title.text = i.title
-			item.model.text = i.model
-			item.last_used.text = i.last_used
-			
-			var preview: Texture = load(i.preview)
-			if preview == null:
-				_logger.error("Unable to load preview for %s from %s" % [i.title, i.preview])
-				continue
-			
-			item.preview.texture = preview
+			item.title.text = i.name
+			item.model.text = i.model_path.get_file()
+			item.last_used.text = i.last_used.to_string()
+			# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
+			# directly throws an error in a thread. An indirect error is fine though
+			item.init_preview(i.preview_path)
 	)
 	
 	var logo_anchor: Control = %LogoAnchor
@@ -86,31 +138,39 @@ func _ready() -> void:
 	var sub_logo_to_anchor := sub_logo_anchor.anchor_top - 0.2
 	
 	var tween := get_tree().create_tween()
-	tween.set_parallel(true).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_BACK)
+	tween.stop()
+	tween.set_parallel(true).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
 	tween.tween_property(logo_anchor, "anchor_top", logo_anchor_to_anchor, LOGO_TWEEN_TIME)
 	tween.tween_property(sub_logo_anchor, "anchor_top", sub_logo_to_anchor, LOGO_TWEEN_TIME)
-	
-	var background: ColorRect = $Background
+	tween.tween_property(_fade, "color", CLEAR_COLOR, LOGO_TWEEN_TIME)
 	
 	var tween_finished_callback := func() -> void:
-		runners.show()
+		_runner_container.show()
+		_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
-	background.gui_input.connect(func(event: InputEvent) -> void:
+	var cancel_intro_fade := func(event: InputEvent) -> void:
 		if not event is InputEventMouseButton:
 			return
 		if not event.pressed:
 			return
-		# TODO not sure how to disconnect this signal cleanly, so just ignore any inputs if
-		# the tween is finished for now
 		if not tween.is_valid():
 			return
 		
-		tween.kill()
 		logo_anchor.anchor_top = logo_anchor_to_anchor
 		sub_logo_anchor.anchor_top = sub_logo_to_anchor
-		tween_finished_callback.call())
+		_fade.color = CLEAR_COLOR
+		# Pretend like the tween finished naturally
+		tween.finished.emit()
+		tween.kill()
 	
-	tween.finished.connect(tween_finished_callback)
+	# Initially hidden because otherwise, the entire scene cannot be seen
+	_fade.show()
+	_fade.gui_input.connect(cancel_intro_fade)
+	
+	tween.finished.connect(func() -> void:
+		tween_finished_callback.call()
+		_fade.gui_input.disconnect(cancel_intro_fade)
+	)
 	
 	tween.play()
 
@@ -122,7 +182,7 @@ func _notification(what: int) -> void:
 		NOTIFICATION_WM_SIZE_CHANGED:
 			_adapt_screen_size()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var mouse_diff: Vector2 = _screen_center - _viewport.get_mouse_position()
 	mouse_diff.x = max(-max_parallax_offset.x, min(max_parallax_offset.x, mouse_diff.x))
 	mouse_diff.y = max(-max_parallax_offset.y, min(max_parallax_offset.y, mouse_diff.y))

@@ -10,7 +10,6 @@
 script = ExtResource("1_sr8va")
 
 [node name="Background" type="ColorRect" parent="."]
-anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -19,10 +18,13 @@ color = Color(0.12549, 0.141176, 0.192157, 1)
 
 [node name="DucksBackgroundAnchor" type="Control" parent="."]
 layout_mode = 3
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 
 [node name="DucksBackground" type="TextureRect" parent="DucksBackgroundAnchor"]
@@ -92,6 +94,7 @@ mouse_filter = 2
 
 [node name="SubLogo" type="TextureRect" parent="SubLogoAnchor"]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = -492.5
 offset_top = -27.5
 offset_right = 492.5
@@ -101,18 +104,9 @@ pivot_offset = Vector2(492.5, 27.5)
 mouse_filter = 2
 texture = ExtResource("5_x2urm")
 
-[node name="Fade" type="ColorRect" parent="."]
+[node name="RunnerContainer" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
 visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 1)
-
-[node name="RunnerContainer" type="ScrollContainer" parent="."]
-anchors_preset = -1
 anchor_left = 0.4
 anchor_top = 0.4
 anchor_right = 1.0
@@ -123,10 +117,45 @@ offset_right = -10.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="Runners" type="VBoxContainer" parent="RunnerContainer"]
+[node name="HFlowContainer" type="HFlowContainer" parent="RunnerContainer"]
+layout_mode = 2
+
+[node name="LoadModel" type="Button" parent="RunnerContainer/HFlowContainer"]
+layout_mode = 2
+text = "Load Model"
+
+[node name="SortLabel" type="Label" parent="RunnerContainer/HFlowContainer"]
+layout_mode = 2
+text = "Sort"
+
+[node name="SortRunners" type="OptionButton" parent="RunnerContainer/HFlowContainer"]
+layout_mode = 2
+item_count = 2
+selected = 0
+popup/item_0/text = "Last Used"
+popup/item_0/id = 0
+popup/item_1/text = "Name"
+popup/item_1/id = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="RunnerContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Runners" type="VBoxContainer" parent="RunnerContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Fade" type="ColorRect" parent="."]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-offset_right = 671.2
-size_flags_horizontal = 3
+top_level = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0, 0, 0, 1)

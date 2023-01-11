@@ -24,7 +24,7 @@ if [ ! -f "$GODOT_CPP_BUILT_FILE" ]; then
 
 	cd godot-cpp
 
-	scons target=editor generate_bindings=yes
+	scons generate_bindings=yes
 
 	cd ..
 
@@ -41,7 +41,7 @@ echo "# Building GDExtenion                                                     
 echo "################################################################################"
 echo ""
 
-scons target=editor
+scons
 
 echo ""
 echo "################################################################################"

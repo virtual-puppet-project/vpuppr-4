@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://ffi41kh5qxl"]
+
+[ext_resource type="Script" path="res://gui/standard_gui.gd" id="1_0h3o5"]
+
+[node name="StandardGui" type="CanvasLayer"]
+script = ExtResource("1_0h3o5")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "This is a test!"
