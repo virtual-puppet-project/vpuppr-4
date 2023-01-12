@@ -69,6 +69,14 @@ AM="*res://utils/app_manager.gd"
 
 gdscript/warnings/shadowed_variable=0
 
+[display]
+
+window/subwindows/embed_subwindows=false
+
 [editor]
 
 script/templates_search_path="res://script-templates"
+
+[gui]
+
+theme/default_theme_scale=1.5

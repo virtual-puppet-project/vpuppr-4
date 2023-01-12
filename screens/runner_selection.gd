@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 const RunnerItem: PackedScene = preload("res://screens/runner-selection/runner_item.tscn")
+const Settings: PackedScene = preload("res://screens/settings.tscn")
 
 const LOGO_TWEEN_TIME: float = 1.5
 const START_RUNNER_TWEEN_TIME: float = 0.5
@@ -50,6 +51,8 @@ var _last_sort_type: int = 0
 ## Needed so sorted can be un-reversed. Starts at 0 so everything is sorted as ascending to start.
 var _last_last_sort_type: int = 0
 
+var _settings_popup: Window = null
+
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
@@ -57,10 +60,49 @@ var _last_last_sort_type: int = 0
 func _ready() -> void:
 	_adapt_screen_size()
 	
+	var handle_popup_hide := func(node: Node) -> void:
+		node.queue_free()
+	
 	%LoadModel.pressed.connect(func() -> void:
-		pass
+		var popup := FileDialog.new()
+		popup.current_dir = "" # TODO pull from config
+		popup.add_filter("*.glb", "GLB models")
+		popup.add_filter("*.vrm", "VRM models")
+		# TODO pull more supported formats from config?
+		popup.access = FileDialog.ACCESS_FILESYSTEM
+		popup.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+		
+		add_child(popup)
+		popup.popup_centered_ratio(0.5)
+		
+		var file_dialog_hide := handle_popup_hide.bind(popup)
+		popup.visibility_changed.connect(file_dialog_hide)
+		popup.close_requested.connect(file_dialog_hide)
+		
+		popup.file_selected.connect(func(path: String) -> void:
+			_logger.debug(path)
+		)
 	)
-	var sort_direction: Label = %SortDirection
+	%Settings.pressed.connect(func() -> void:
+		# Reuse the old settings popup
+		if _settings_popup != null:
+			_settings_popup.move_to_foreground()
+			return
+		
+		_settings_popup = Window.new()
+		_settings_popup.title = "VPupPr Settings"
+		
+		var settings := Settings.instantiate()
+		_settings_popup.add_child(settings)
+		
+		add_child(_settings_popup)
+		_settings_popup.popup_centered_ratio(0.5)
+		
+		var settings_hide := handle_popup_hide.bind(_settings_popup)
+		_settings_popup.visibility_changed.connect(settings_hide)
+		_settings_popup.close_requested.connect(settings_hide)
+	)
+	var sort_direction: Button = %SortDirection
 	var sort_runners_popup: PopupMenu = %SortRunners.get_popup()
 	sort_runners_popup.index_pressed.connect(func(idx: int) -> void:
 		var reversed := idx == _last_sort_type
@@ -120,6 +162,11 @@ func _ready() -> void:
 		
 		for c in children:
 			_runners.add_child(c)
+	)
+	sort_direction.pressed.connect(func() -> void:
+		# Basically virtually press the last option again, resulting in it being reversed
+		_last_last_sort_type = -1 if _last_last_sort_type != _last_sort_type else _last_sort_type
+		sort_runners_popup.index_pressed.emit(_last_sort_type)
 	)
 	
 	var init_runners_thread := Thread.new()
@@ -220,6 +267,7 @@ func _ready() -> void:
 	tween.tween_property(sub_logo_anchor, "anchor_top", sub_logo_to_anchor, LOGO_TWEEN_TIME)
 	tween.tween_property(_fade, "color", CLEAR_COLOR, LOGO_TWEEN_TIME)
 	
+	_runner_container.hide()
 	var tween_finished_callback := func() -> void:
 		_runner_container.show()
 		_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -1,0 +1,58 @@
+[gd_scene load_steps=4 format=3 uid="uid://deelrt0irysch"]
+
+[ext_resource type="Script" path="res://screens/settings.gd" id="1_5uuem"]
+[ext_resource type="PackedScene" uid="uid://ck4pa1mxm807m" path="res://screens/settings/general.tscn" id="2_1xve1"]
+[ext_resource type="PackedScene" uid="uid://cpy3jtcijjcaf" path="res://screens/settings/rendering.tscn" id="3_xn4vi"]
+
+[node name="Settings" type="CanvasLayer"]
+script = ExtResource("1_5uuem")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.0862745, 0.0862745, 0.0862745, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HFlowContainer" type="HFlowContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HFlowContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HFlowContainer/HBoxContainer"]
+layout_mode = 2
+text = "Search:"
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/HFlowContainer/HBoxContainer"]
+custom_minimum_size = Vector2(255, 0)
+layout_mode = 2
+placeholder_text = "Setting name"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Categories" type="Tree" parent="VBoxContainer/HSplitContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Pages" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="General" parent="VBoxContainer/HSplitContainer/Pages" instance=ExtResource("2_1xve1")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Rendering" parent="VBoxContainer/HSplitContainer/Pages" instance=ExtResource("3_xn4vi")]
+unique_name_in_owner = true
+layout_mode = 2
