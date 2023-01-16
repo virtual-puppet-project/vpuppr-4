@@ -14,6 +14,11 @@ _global_script_classes=[{
 "language": &"GDScript",
 "path": "res://utils/app_manager.gd"
 }, {
+"base": "Object",
+"class": &"ConfigManager",
+"language": &"GDScript",
+"path": "res://utils/managers/config_manager.gd"
+}, {
 "base": "Resource",
 "class": &"Datetime",
 "language": &"GDScript",
@@ -46,6 +51,7 @@ _global_script_classes=[{
 }]
 _global_script_class_icons={
 "AppManager": "",
+"ConfigManager": "",
 "Datetime": "",
 "Metadata": "",
 "Runner3D": "",
@@ -76,6 +82,7 @@ window/subwindows/embed_subwindows=false
 [editor]
 
 script/templates_search_path="res://script-templates"
+export/convert_text_resources_to_binary=true
 
 [gui]
 

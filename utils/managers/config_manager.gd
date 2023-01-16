@@ -1,19 +1,15 @@
-class_name Metadata
-extends Resource
+class_name ConfigManager
+extends Object
 
-@export
-var runners: Array[RunnerData] = []
-@export
-var default_fs_search_path := ""
-
-@export
-var msaa_2d: int = 0
-@export
-var msaa_3d: int = 0
+# TODO testing
+var metadata: Metadata = Metadata.new()
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
+
+func _init() -> void:
+	pass
 
 #-----------------------------------------------------------------------------#
 # Private functions

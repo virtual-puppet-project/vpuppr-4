@@ -254,49 +254,66 @@ func _ready() -> void:
 			item.init_preview(i.preview_path)
 	)
 	
+	_runner_container.hide()
+	
 	var logo_anchor: Control = %LogoAnchor
 	var sub_logo_anchor: Control = %SubLogoAnchor
 	
 	var logo_anchor_to_anchor := logo_anchor.anchor_top - 0.2
 	var sub_logo_to_anchor := sub_logo_anchor.anchor_top - 0.2
 	
-	var tween := get_tree().create_tween()
-	tween.stop()
-	tween.set_parallel(true).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
-	tween.tween_property(logo_anchor, "anchor_top", logo_anchor_to_anchor, LOGO_TWEEN_TIME)
-	tween.tween_property(sub_logo_anchor, "anchor_top", sub_logo_to_anchor, LOGO_TWEEN_TIME)
-	tween.tween_property(_fade, "color", CLEAR_COLOR, LOGO_TWEEN_TIME)
+	# Needs to be declared early so the various closures can capture it
+	var fade_tween := create_tween()
+	fade_tween.tween_property(_fade, "color", CLEAR_COLOR, LOGO_TWEEN_TIME)
 	
-	_runner_container.hide()
-	var tween_finished_callback := func() -> void:
-		_runner_container.show()
-		_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var movement_tween := create_tween()
+	movement_tween.stop()
+	movement_tween.set_parallel(true).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
+	movement_tween.tween_property(logo_anchor, "anchor_top", logo_anchor_to_anchor, LOGO_TWEEN_TIME)
+	movement_tween.tween_property(sub_logo_anchor, "anchor_top", sub_logo_to_anchor, LOGO_TWEEN_TIME)
 	
 	var cancel_intro_fade := func(event: InputEvent) -> void:
 		if not event is InputEventMouseButton:
 			return
 		if not event.pressed:
 			return
-		if not tween.is_valid():
+		
+		_fade.color = CLEAR_COLOR
+		fade_tween.finished.emit()
+		fade_tween.kill()
+	
+	var cancel_intro_movement := func(event: InputEvent) -> void:
+		if not event is InputEventMouseButton:
+			return
+		if not event.pressed:
 			return
 		
 		logo_anchor.anchor_top = logo_anchor_to_anchor
 		sub_logo_anchor.anchor_top = sub_logo_to_anchor
-		_fade.color = CLEAR_COLOR
 		# Pretend like the tween finished naturally
-		tween.finished.emit()
-		tween.kill()
+		movement_tween.finished.emit()
+		movement_tween.kill()
+	
+	_fade.gui_input.connect(cancel_intro_fade)
+	
+	fade_tween.finished.connect(func() -> void:
+		_fade.gui_input.disconnect(cancel_intro_fade)
+		_fade.gui_input.connect(cancel_intro_movement)
+		movement_tween.play()
+	)
+	
+	movement_tween.finished.connect(func() -> void:
+		_runner_container.show()
+		_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		var runner_tween := create_tween()
+		runner_tween.tween_property(_runner_container, "modulate", Color.WHITE, LOGO_TWEEN_TIME / 2.0)
+		
+		_fade.gui_input.disconnect(cancel_intro_movement)
+	)
 	
 	# Initially hidden because otherwise, the entire scene cannot be seen
 	_fade.show()
-	_fade.gui_input.connect(cancel_intro_fade)
-	
-	tween.finished.connect(func() -> void:
-		tween_finished_callback.call()
-		_fade.gui_input.disconnect(cancel_intro_fade)
-	)
-	
-	tween.play()
 	
 	self.ready.connect(func() -> void:
 		while init_runners_thread.is_alive():

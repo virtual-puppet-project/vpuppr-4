@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://screens/runner-selection/runner_item.gd" id="1_repxk"]
 [ext_resource type="Texture2D" uid="uid://c4rs20oqm2jq2" path="res://assets/Favorite.svg" id="2_r8fud"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nsq7v"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7e7n4"]
 content_margin_left = 5.0
 content_margin_top = 5.0
 content_margin_right = 5.0
@@ -11,11 +11,12 @@ content_margin_bottom = 5.0
 bg_color = Color(0.0862745, 0.0862745, 0.0862745, 0.478431)
 
 [node name="RunnerItem" type="PanelContainer"]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_nsq7v")
+theme_override_styles/panel = SubResource("StyleBoxFlat_7e7n4")
 script = ExtResource("1_repxk")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
@@ -36,7 +37,7 @@ layout_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-ignore_texture_size = true
+expand_mode = 1
 stretch_mode = 5
 
 [node name="VSeparator2" type="VSeparator" parent="HBoxContainer"]
