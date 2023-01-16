@@ -180,7 +180,7 @@ func _ready() -> void:
 				d0.name = "Test 0"
 				d0.runner_path = "res://screens/runners/runner_3d.tscn"
 				d0.gui_path = "res://gui/standard_gui.tscn"
-				d0.model_path = "some/path/to/model.vrm"
+				d0.model_path = "res://assets/3d-models/rubber-duck.glb"
 				d0.preview_path = "res://assets/VpupprDuck.png"
 				d0.last_used.day = 123
 				d0.favorite = true
@@ -191,7 +191,7 @@ func _ready() -> void:
 				d1.name = "Some other data"
 				d1.runner_path = "res://screens/runners/runner_3d.tscn"
 				d1.gui_path = "res://gui/standard_gui.tscn"
-				d1.model_path = "some/other/model.glb"
+				d1.model_path = "res://assets/3d-models/AliciaSolid_vrm-0.51.vrm"
 				d1.preview_path = "C:/Users/theaz/Pictures/astro.png"
 				
 				r.append(d1)
@@ -208,7 +208,7 @@ func _ready() -> void:
 		).call():
 			var item := RunnerItem.instantiate()
 			item.clicked.connect(func() -> void:
-				var handler := RunnerHandler.new(i)
+				var handler: RunnerHandler = await RunnerHandler.new(i)
 				if handler.get_child_count() < 1:
 					_logger.error(
 						"An error occurred while loading the runner, declining to start handler")
