@@ -3,8 +3,6 @@ extends Node
 
 ## Handler for all runners. Provides utility functions useful for all runners.
 
-const MODEL_IMPORT_FLAGS: int = 1 + 2 + 4 + 8 + 16 + 32
-
 ## The logger for the RunnerHandler.
 var _logger := Logger.emplace("RunnerHandler")
 
@@ -35,6 +33,8 @@ func _init(data: RunnerData) -> void:
 		fail_alert.call("Unable to load runner, bailing out!")
 		return
 	
+	runner.set("handler", self)
+	
 	add_child(runner)
 	
 	var model_thread := Thread.new()
@@ -52,7 +52,7 @@ func _init(data: RunnerData) -> void:
 				var gltf: GLTFDocument = GLTFDocument.new()
 				var state: GLTFState = GLTFState.new()
 				
-				var err := gltf.append_from_file(data.model_path, state, MODEL_IMPORT_FLAGS)
+				var err := gltf.append_from_file(data.model_path, state)
 				if err != OK:
 					return null
 				
@@ -63,7 +63,7 @@ func _init(data: RunnerData) -> void:
 				GLTFDocument.register_gltf_document_extension(vrm_extension)
 				var state: GLTFState = GLTFState.new()
 				
-				var err := gltf.append_from_file(data.model_path, state, MODEL_IMPORT_FLAGS)
+				var err := gltf.append_from_file(data.model_path, state)
 				if err != OK:
 					GLTFDocument.unregister_gltf_document_extension(vrm_extension)
 					return null
@@ -83,7 +83,10 @@ func _init(data: RunnerData) -> void:
 		fail_alert.call("Unable to load model!")
 		return
 	
+	# TODO (Tim Yuen) this seems not good since there's no interface to compare against
 	runner.try_set_model(model)
+	
+	# TODO (Tim Yuen) add hooks here? or maybe put them in ready?
 
 #-----------------------------------------------------------------------------#
 # Private functions

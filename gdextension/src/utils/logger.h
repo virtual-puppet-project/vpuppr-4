@@ -12,7 +12,7 @@ class Logger : public RefCounted {
     String logger_name;
 
    private:
-    void _log(const String &p_message, const int p_type);
+    void _log(const Variant **p_args, GDExtensionInt p_arg_count, const int p_type);
     static void _add_to_log_store(const String &p_message);
     // Needs to be static since this is also accessible from global_log
     static String _insert_metadata(const String &p_message_id, const String &p_message);
@@ -35,14 +35,12 @@ class Logger : public RefCounted {
         POPUP
     };
 
-    // Logger *name(const String &p_name);
-
-    void notify(const String &p_message, const int p_type);
-    void info(const String &p_message);
-    void warn(const String &p_message);
-    void debug(const String &p_message);
-    void trace(const String &p_message);
-    void error(const String &p_message);
+    void notify(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
+    void info(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
+    void warn(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
+    void debug(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
+    void trace(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
+    void error(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
 
     static Ref<Logger> emplace(const String &p_logger_name);
     static void global(const String &p_message_id, const String &p_message);
@@ -54,6 +52,6 @@ class Logger : public RefCounted {
     ~Logger() {}
 };
 
-VARIANT_ENUM_CAST(Logger, NotifyType);
+VARIANT_ENUM_CAST(Logger::NotifyType);
 
 #endif  // LOGGER_H

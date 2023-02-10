@@ -30,8 +30,12 @@ String Logger::_insert_metadata(const String &p_message_id, const String &p_mess
     return String("{0} {1}-{2}-{3}_{4}:{5}:{6} {7}").format(arr);
 }
 
-void Logger::_log(const String &p_message, const int p_type) {
-    String formatted_message = _insert_metadata(logger_name, p_message);
+void Logger::_log(const Variant **p_args, GDExtensionInt p_arg_count, const int p_type) {
+    String message;
+    for (int i = 0; i < p_arg_count; i++) {
+        message += (*(*p_args++)).stringify();
+    }
+    String formatted_message = _insert_metadata(logger_name, message);
 
     String prefix;
 
@@ -56,7 +60,7 @@ void Logger::_log(const String &p_message, const int p_type) {
             break;
         default:
             Array arr;
-            arr.append(p_message);
+            arr.append(message);
             arr.append(p_type);
 
             UtilityFunctions::printerr(String("Unexpected log type received:\nMessage: {0}\nType: {1}")
@@ -70,30 +74,39 @@ void Logger::_log(const String &p_message, const int p_type) {
     Logger::_add_to_log_store(final_message);
 }
 
-void Logger::notify(const String &p_message, const int p_type) {
+void Logger::notify(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
     // TODO add notification stuff here
 
-    _log(p_message, NOTIFY);
+    if (p_arg_count < 2) {
+        p_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
+        p_error.argument = 0;
+        p_error.expected = 2;
+        return;
+    }
+
+    Variant notify_type = *(*p_args++);
+
+    _log(p_args, --p_arg_count, NOTIFY);
 }
 
-void Logger::info(const String &p_message) {
-    _log(p_message, INFO);
+void Logger::info(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+    _log(p_args, p_arg_count, INFO);
 }
 
-void Logger::warn(const String &p_message) {
-    _log(p_message, WARN);
+void Logger::warn(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+    _log(p_args, p_arg_count, WARN);
 }
 
-void Logger::debug(const String &p_message) {
-    _log(p_message, DEBUG);
+void Logger::debug(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+    _log(p_args, p_arg_count, DEBUG);
 }
 
-void Logger::trace(const String &p_message) {
-    _log(p_message, TRACE);
+void Logger::trace(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+    _log(p_args, p_arg_count, TRACE);
 }
 
-void Logger::error(const String &p_message) {
-    _log(p_message, ERROR);
+void Logger::error(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+    _log(p_args, p_arg_count, ERROR);
 }
 
 void Logger::global(const String &p_message_id, const String &p_message) {
@@ -128,14 +141,48 @@ Ref<Logger> Logger::emplace(const String &p_logger_name) {
 }
 
 void Logger::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("notify", "message", "type"), &Logger::notify);
-    ClassDB::bind_method(D_METHOD("info", "message"), &Logger::info);
-    ClassDB::bind_method(D_METHOD("warn", "message"), &Logger::warn);
-    ClassDB::bind_method(D_METHOD("debug", "message"), &Logger::debug);
-    ClassDB::bind_method(D_METHOD("trace", "message"), &Logger::trace);
-    ClassDB::bind_method(D_METHOD("error", "message"), &Logger::error);
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::INT, "type"));
+        mi.arguments.push_back(PropertyInfo(Variant::NIL, "message"));
+        mi.name = "notify";
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "notify", &Logger::notify, mi);
+    }
 
-    // ClassDB::bind_method(D_METHOD("name", "logger_name"), &Logger::name);
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::NIL, "message"));
+        mi.name = "info";
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "info", &Logger::info, mi);
+    }
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::NIL, "message"));
+        mi.name = "warn";
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "warn", &Logger::warn, mi);
+    }
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::NIL, "message"));
+        mi.name = "debug";
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "debug", &Logger::debug, mi);
+    }
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::NIL, "message"));
+        mi.name = "trace";
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "trace", &Logger::trace, mi);
+    }
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::NIL, "message"));
+        mi.name = "error";
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "error", &Logger::error, mi);
+    }
 
     ClassDB::bind_static_method("Logger", D_METHOD("global", "message"), &Logger::global);
     ClassDB::bind_static_method("Logger", D_METHOD("set_log_store_max", "max"), &Logger::set_log_store_max);

@@ -1,27 +1,31 @@
-extends "res://tests/base_test.gd"
+class_name AbstractTracker
+extends Node
 
-# https://github.com/bitwes/Gut/wiki/Quick-Start
+signal data_received()
 
-#-----------------------------------------------------------------------------#
-# Builtin functions                                                           #
-#-----------------------------------------------------------------------------#
-
-func before_all():
-	.before_all()
-
-func before_each():
-%TS%pass
-
-func after_each():
-%TS%pass
-
-func after_all():
-%TS%pass
+var _logger: Logger = null
 
 #-----------------------------------------------------------------------------#
-# Utils                                                                       #
+# Builtin functions
+#-----------------------------------------------------------------------------#
+
+func _init(name: String) -> void:
+	self.name = name
+	
+	_logger = Logger.emplace(name)
+
+#-----------------------------------------------------------------------------#
+# Private functions
 #-----------------------------------------------------------------------------#
 
 #-----------------------------------------------------------------------------#
-# Tests                                                                       #
+# Public functions
 #-----------------------------------------------------------------------------#
+
+func start_receiver() -> int:
+	_logger.error("Not yet implemented")
+	return ERR_UNCONFIGURED
+
+func stop_receiver() -> int:
+	_logger.error("Not yet implemented")
+	return ERR_UNCONFIGURED

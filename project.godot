@@ -8,58 +8,6 @@
 
 config_version=5
 
-_global_script_classes=[{
-"base": "Node",
-"class": &"AppManager",
-"language": &"GDScript",
-"path": "res://utils/app_manager.gd"
-}, {
-"base": "Object",
-"class": &"ConfigManager",
-"language": &"GDScript",
-"path": "res://utils/managers/config_manager.gd"
-}, {
-"base": "Resource",
-"class": &"Datetime",
-"language": &"GDScript",
-"path": "res://model/datetime.gd"
-}, {
-"base": "Resource",
-"class": &"Metadata",
-"language": &"GDScript",
-"path": "res://model/metadata.gd"
-}, {
-"base": "Node3D",
-"class": &"Runner3D",
-"language": &"GDScript",
-"path": "res://screens/runners/runner_3d.gd"
-}, {
-"base": "Resource",
-"class": &"RunnerData",
-"language": &"GDScript",
-"path": "res://model/runner_data.gd"
-}, {
-"base": "Node",
-"class": &"RunnerHandler",
-"language": &"GDScript",
-"path": "res://screens/runner_handler.gd"
-}, {
-"base": "Node3D",
-"class": &"VRMTopLevel",
-"language": &"GDScript",
-"path": "res://addons/vrm/vrm_toplevel.gd"
-}]
-_global_script_class_icons={
-"AppManager": "",
-"ConfigManager": "",
-"Datetime": "",
-"Metadata": "",
-"Runner3D": "",
-"RunnerData": "",
-"RunnerHandler": "",
-"VRMTopLevel": ""
-}
-
 [application]
 
 config/name="vpuppr-4"
@@ -82,7 +30,6 @@ window/subwindows/embed_subwindows=false
 [editor]
 
 script/templates_search_path="res://script-templates"
-export/convert_text_resources_to_binary=true
 
 [gui]
 
