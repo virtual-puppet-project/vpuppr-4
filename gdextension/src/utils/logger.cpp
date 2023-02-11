@@ -116,6 +116,10 @@ void Logger::global(const String &p_message_id, const String &p_message) {
     Logger::_add_to_log_store(final_message);
 }
 
+void Logger::nyi(const String &p_method_name) {
+    global("NYI", p_method_name);
+}
+
 void Logger::set_log_store_max(const int p_max) {
     log_store_max = p_max;
 }

@@ -44,6 +44,7 @@ class Logger : public RefCounted {
 
     static Ref<Logger> emplace(const String &p_logger_name);
     static void global(const String &p_message_id, const String &p_message);
+    static void nyi(const String &p_method_name);
 
     static void set_log_store_max(const int p_max);
     static TypedArray<String> get_logs();

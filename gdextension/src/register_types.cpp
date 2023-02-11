@@ -6,6 +6,8 @@
 #include <godot_cpp/core/class_db.hpp>
 
 #include "utils/logger.h"
+#include "utils/trackers/abstract_tracker.h"
+#include "utils/trackers/open_see_face.h"
 
 using namespace godot;
 
@@ -14,6 +16,10 @@ void initialize_vpuppr_module(ModuleInitializationLevel p_level) {
         return;
     }
     ClassDB::register_class<Logger>();
+
+    ClassDB::register_abstract_class<AbstractTracker>();
+    ClassDB::register_class<OpenSeeFace>();
+    ClassDB::register_class<OpenSeeFaceData>();
 }
 
 void uninitialize_vpuppr_module(ModuleInitializationLevel p_level) {

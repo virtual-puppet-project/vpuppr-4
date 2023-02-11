@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="Logger" inherits="RefCounted" version="4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		A logger.
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="info">
+			<description>
+				Send an info log.
+			</description>
+            <param index="0" name="message" type="Variant" />
+            <return type="void" />
+		</method>
+		<method name="emplace" qualifiers="static">
+            <description>
+				Create a new Logger with the given name.
+			</description>
+            <param index="0" name="logger_name" type="String" />
+			<return type="Logger" />
+		</method>
+        <method name="global" qualifiers="static">
+            <description>
+				Send a global log that does not require a Logger instance.
+			</description>
+            <param index="0" name="message_id" type="String" />
+            <param index="1" name="message" type="String" />
+			<return type="void" />
+		</method>
+        <method name="nyi" qualifiers="static">
+            <description>
+				Send a "not yet implemented" log, globally.
+			</description>
+            <param index="0" name="method_name" type="String" />
+			<return type="void" />
+		</method>
+		<method name="set_log_store_max" qualifiers="static">
+            <description>
+				Set the max amount of logs to store.
+			</description>
+            <param index="0" name="max" type="int" />
+			<return type="void" />
+		</method>
+        <method name="get_logs" qualifiers="static">
+            <description>
+				Get all logs that are currently stored by the Logger.
+			</description>
+			<return type="Array[String]" />
+		</method>
+	</methods>
+</class>
