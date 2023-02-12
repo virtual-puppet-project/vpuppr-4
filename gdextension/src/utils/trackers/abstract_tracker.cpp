@@ -30,4 +30,7 @@ void AbstractTracker::_bind_methods() {
         mi.name = "stop";
         ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "stop", &AbstractTracker::stop, mi);
     }
+
+    ADD_SIGNAL(MethodInfo(DATA_RECEIVED_SIGNAL, PropertyInfo(Variant::OBJECT, "data")));
+    // ClassDB::add_signal(get_class_static(), MethodInfo("data_received", PropertyInfo(Variant::OBJECT, "data")));
 }

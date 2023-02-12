@@ -11,11 +11,11 @@ using namespace godot;
 class AbstractTracker : public Node {
     GDCLASS(AbstractTracker, Node);
 
-   private:
-    Ref<Logger> _logger;
+    static constexpr char *DATA_RECEIVED_SIGNAL = "data_received";
 
    protected:
     static void _bind_methods();
+    Ref<Logger> _logger;
 
    public:
     virtual Error start(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);

@@ -2,15 +2,22 @@
 #define OPEN_SEE_FACE_H
 
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/packet_peer_udp.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/stream_peer_buffer.hpp>
+#include <godot_cpp/classes/thread.hpp>
+#include <godot_cpp/classes/udp_server.hpp>
 #include <godot_cpp/core/binder_common.hpp>
 
 #include "abstract_tracker.h"
 
 using namespace godot;
 
+/// @brief Tracking data from an OpenSeeFace packet.
 class OpenSeeFaceData : public RefCounted {
     GDCLASS(OpenSeeFaceData, RefCounted);
+
+    const int NUMBER_OF_POINTS = 68;
 
    protected:
     static void _bind_methods();
@@ -59,6 +66,27 @@ class OpenSeeFaceData : public RefCounted {
     float mouth_open;
     float mouth_wide;
 
+    /// @brief Helper function for constructing Vector2s from a buffer.
+    /// @param b The buffer to read from.
+    /// @return A Vector2.
+    inline Vector2 _read_vector2(Ref<StreamPeerBuffer> &b) {
+        return Vector2(b->get_float(), b->get_float());
+    }
+
+    /// @brief Helper function for constructing Vector3s from a buffer.
+    /// @param b The buffer to read from.
+    /// @return A Vector3.
+    inline Vector3 _read_vector3(Ref<StreamPeerBuffer> &b) {
+        return Vector3(b->get_float(), b->get_float(), b->get_float());
+    }
+
+    /// @brief Helper function for constructing Quaternions from a buffer.
+    /// @param b The buffer to read from.
+    /// @return A Quaternion.
+    inline Quaternion _read_quaternion(Ref<StreamPeerBuffer> &b) {
+        return Quaternion(b->get_float(), b->get_float(), b->get_float(), b->get_float());
+    }
+
    public:
     float get_time();
     int get_id();
@@ -104,6 +132,10 @@ class OpenSeeFaceData : public RefCounted {
     float get_mouth_open();
     float get_mouth_wide();
 
+    /// @brief Takes a buffer and parses it.
+    /// @param b The buffer to parse.
+    void read_packet(const PackedByteArray &b);
+
     OpenSeeFaceData();
     ~OpenSeeFaceData();
 };
@@ -111,12 +143,38 @@ class OpenSeeFaceData : public RefCounted {
 class OpenSeeFace : public AbstractTracker {
     GDCLASS(OpenSeeFace, AbstractTracker);
 
+    /// @brief The size of a packet from OpenSeeFace.
+    const int PACKET_FRAME_SIZE = 8 + 4 + 2 * 4 + 2 * 4 + 1 + 4 + 3 * 4 + 3 * 4 + 4 * 4 + 4 * 68 + 4 * 2 * 68 + 4 * 3 * 70 + 4 * 14;
+    /// @brief The maximum allowed FPS. Anything higher than this is unreasonable.
+    const double MAX_TRACKER_FPS = 144.0;
+
+    const double SERVER_POLL_INTERVAL = 1.0 / MAX_TRACKER_FPS;
+
+    const float MAX_FIT_3D_ERROR = 100.0;
+
+    Ref<UDPServer> server;
+    Ref<PacketPeerUDP> connection;
+    Ref<Thread> receive_thread;
+    int receive_pid;
+    bool stop_reception;
+    bool should_poll;
+    double poll_counter;
+
+    /// @brief Function to run in thread.
+    /// @return The error code.
+    Error _receive();
+
    protected:
     static void _bind_methods();
 
    public:
     virtual Error start(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) override;
     virtual Error stop(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) override;
+
+    void _process(double delta) override;
+
+    OpenSeeFace();
+    ~OpenSeeFace();
 };
 
 #endif  // OPEN_SEE_FACE_H

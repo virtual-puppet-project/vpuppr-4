@@ -17,7 +17,8 @@ void initialize_vpuppr_module(ModuleInitializationLevel p_level) {
     }
     ClassDB::register_class<Logger>();
 
-    ClassDB::register_abstract_class<AbstractTracker>();
+    // TODO cannot register AbstractTracker as an abstract class, otherwise OpenSeeFace cannot be constructed
+    ClassDB::register_class<AbstractTracker>();
     ClassDB::register_class<OpenSeeFace>();
     ClassDB::register_class<OpenSeeFaceData>();
 }

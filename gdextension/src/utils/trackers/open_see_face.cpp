@@ -120,6 +120,75 @@ float OpenSeeFaceData::get_mouth_wide() {
     return mouth_wide;
 }
 
+void OpenSeeFaceData::read_packet(const PackedByteArray &b) {
+    Ref<StreamPeerBuffer> spb;
+    spb.instantiate();
+
+    spb->set_data_array(b);
+
+    time = spb->get_double();
+    id = spb->get_float();
+
+    camera_resolution = _read_vector2(spb);
+
+    right_eye_open = spb->get_float();
+    left_eye_open = spb->get_float();
+
+    if (spb->get_8() != 0) {
+        got_3d_points = true;
+    }
+    fit_3d_error = spb->get_float();
+
+    raw_quaternion = _read_quaternion(spb);
+    raw_euler = _read_vector3(spb);
+
+    rotation = raw_euler;
+    if (rotation.x <= 0.0) {
+        rotation.x += 360.0;
+    }
+
+    {
+        float x = spb->get_float();
+        float y = spb->get_float();
+        float z = spb->get_float();
+
+        translation = -Vector3(y, x, z);
+    }
+
+    for (int i = 0; i < NUMBER_OF_POINTS; i++) {
+        confidence.set(i, spb->get_float());
+    }
+    for (int i = 0; i < NUMBER_OF_POINTS; i++) {
+        points.set(i, _read_vector2(spb));
+    }
+    for (int i = 0; i < NUMBER_OF_POINTS + 2; i++) {
+        points_3d.set(i, _read_vector3(spb));
+    }
+
+    right_gaze = Quaternion(Transform3D().looking_at(points_3d[66] - points_3d[68], Vector3(0, 1, 0)).basis).normalized();
+    left_gaze = Quaternion(Transform3D().looking_at(points_3d[67] - points_3d[69], Vector3(0, 1, 0)).basis).normalized();
+
+    eye_left = spb->get_float();
+    eye_right = spb->get_float();
+
+    eyebrow_steepness_left = spb->get_float();
+    eyebrow_up_down_left = spb->get_float();
+    eyebrow_quirk_left = spb->get_float();
+
+    eyebrow_steepness_right = spb->get_float();
+    eyebrow_up_down_right = spb->get_float();
+    eyebrow_quirk_right = spb->get_float();
+
+    mouth_corner_up_down_left = spb->get_float();
+    mouth_corner_in_out_left = spb->get_float();
+
+    mouth_corner_up_down_right = spb->get_float();
+    mouth_corner_in_out_right = spb->get_float();
+
+    mouth_open = spb->get_float();
+    mouth_wide = spb->get_float();
+}
+
 OpenSeeFaceData::OpenSeeFaceData() {
     time = 0.0;
     id = 0;
@@ -151,44 +220,173 @@ OpenSeeFaceData::~OpenSeeFaceData() {}
 void OpenSeeFaceData::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_time"), &OpenSeeFaceData::get_time);
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "time"), "", "get_time");
-
     ClassDB::bind_method(D_METHOD("get_id"), &OpenSeeFaceData::get_id);
     ADD_PROPERTY(PropertyInfo(Variant::INT, "id"), "", "get_id");
 
     ClassDB::bind_method(D_METHOD("get_camera_resolution"), &OpenSeeFaceData::get_camera_resolution);
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "camera_resolution"), "", "get_camera_resolution");
 
-    ClassDB::bind_method(D_METHOD("get_right_eye_open"), &OpenSeeFaceData::get_right_eye_open);
-    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "right_eye_open"), "", "get_right_eye_open");
+    ClassDB::bind_method(D_METHOD("get_right_gaze"), &OpenSeeFaceData::get_right_gaze);
+    ADD_PROPERTY(PropertyInfo(Variant::QUATERNION, "right_gaze"), "", "get_right_gaze");
+    ClassDB::bind_method(D_METHOD("get_left_gaze"), &OpenSeeFaceData::get_left_gaze);
+    ADD_PROPERTY(PropertyInfo(Variant::QUATERNION, "left_gaze"), "", "get_left_gaze");
 
-    ClassDB::bind_method(D_METHOD("get_left_eye_open"), &OpenSeeFaceData::get_left_eye_open);
-    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "left_eye_open"), "", "get_left_eye_open");
+    ClassDB::bind_method(D_METHOD("get_got_3d_points"), &OpenSeeFaceData::get_got_3d_points);
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "got_3d_points"), "", "get_got_3d_points");
+    ClassDB::bind_method(D_METHOD("get_fit_3d_error"), &OpenSeeFaceData::get_fit_3d_error);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "fit_3d_error"), "", "get_fit_3d_error");
 
-    // TODO add the rest of the properties
+    ClassDB::bind_method(D_METHOD("get_rotation"), &OpenSeeFaceData::get_rotation);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "rotation"), "", "get_rotation");
+    ClassDB::bind_method(D_METHOD("get_translation"), &OpenSeeFaceData::get_translation);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "translation"), "", "get_translation");
+
+    ClassDB::bind_method(D_METHOD("get_raw_quaternion"), &OpenSeeFaceData::get_raw_quaternion);
+    ADD_PROPERTY(PropertyInfo(Variant::QUATERNION, "raw_quaternion"), "", "get_raw_quaternion");
+    ClassDB::bind_method(D_METHOD("get_raw_euler"), &OpenSeeFaceData::get_raw_euler);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "raw_euler"), "", "get_raw_euler");
+
+    ClassDB::bind_method(D_METHOD("get_confidence"), &OpenSeeFaceData::get_confidence);
+    ADD_PROPERTY(PropertyInfo(Variant::PACKED_FLOAT32_ARRAY, "confidence"), "", "get_confidence");
+    ClassDB::bind_method(D_METHOD("get_points"), &OpenSeeFaceData::get_points);
+    ADD_PROPERTY(PropertyInfo(Variant::PACKED_VECTOR2_ARRAY, "points"), "", "get_points");
+    ClassDB::bind_method(D_METHOD("get_points_3d"), &OpenSeeFaceData::get_points_3d);
+    ADD_PROPERTY(PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "points_3d"), "", "get_points_3d");
+
+    ClassDB::bind_method(D_METHOD("get_eye_left"), &OpenSeeFaceData::get_eye_left);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eye_left"), "", "get_eye_left");
+    ClassDB::bind_method(D_METHOD("get_eye_right"), &OpenSeeFaceData::get_eye_right);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eye_right"), "", "get_eye_right");
+
+    ClassDB::bind_method(D_METHOD("get_eyebrow_steepness_left"), &OpenSeeFaceData::get_eyebrow_steepness_left);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eyebrow_steepness_left"), "", "get_eyebrow_steepness_left");
+    ClassDB::bind_method(D_METHOD("get_eyebrow_up_down_left"), &OpenSeeFaceData::get_eyebrow_up_down_left);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eyebrow_up_down_left"), "", "get_eyebrow_up_down_left");
+    ClassDB::bind_method(D_METHOD("get_eyebrow_quirk_left"), &OpenSeeFaceData::get_eyebrow_quirk_left);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eyebrow_quirk_left"), "", "get_eyebrow_quirk_left");
+
+    ClassDB::bind_method(D_METHOD("get_eyebrow_steepness_right"), &OpenSeeFaceData::get_eyebrow_steepness_right);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eyebrow_steepness_right"), "", "get_eyebrow_steepness_right");
+    ClassDB::bind_method(D_METHOD("get_eyebrow_up_down_right"), &OpenSeeFaceData::get_eyebrow_up_down_right);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eyebrow_up_down_right"), "", "get_eyebrow_up_down_right");
+    ClassDB::bind_method(D_METHOD("get_eyebrow_quirk_right"), &OpenSeeFaceData::get_eyebrow_quirk_right);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eyebrow_quirk_right"), "", "get_eyebrow_quirk_right");
+
+    ClassDB::bind_method(D_METHOD("get_mouth_corner_up_down_left"), &OpenSeeFaceData::get_mouth_corner_up_down_left);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mouth_corner_up_down_left"), "", "get_mouth_corner_up_down_left");
+    ClassDB::bind_method(D_METHOD("get_mouth_corner_in_out_left"), &OpenSeeFaceData::get_mouth_corner_in_out_left);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mouth_corner_in_out_left"), "", "get_mouth_corner_in_out_left");
+
+    ClassDB::bind_method(D_METHOD("get_mouth_corner_up_down_right"), &OpenSeeFaceData::get_mouth_corner_up_down_right);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mouth_corner_up_down_right"), "", "get_mouth_corner_up_down_right");
+    ClassDB::bind_method(D_METHOD("get_mouth_corner_in_out_right"), &OpenSeeFaceData::get_mouth_corner_in_out_right);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mouth_corner_in_out_right"), "", "get_mouth_corner_in_out_right");
+
+    ClassDB::bind_method(D_METHOD("get_mouth_open"), &OpenSeeFaceData::get_mouth_open);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mouth_open"), "", "get_mouth_open");
+    ClassDB::bind_method(D_METHOD("get_mouth_wide"), &OpenSeeFaceData::get_mouth_wide);
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mouth_wide"), "", "get_mouth_wide");
+}
+
+void OpenSeeFace::_process(double delta) {
+    poll_counter += delta;
+    if (poll_counter > SERVER_POLL_INTERVAL) {
+        should_poll = true;
+        poll_counter = 0.0;
+    }
+}
+
+Error OpenSeeFace::_receive() {
+    while (!stop_reception) {
+        if (!should_poll) {
+            continue;
+        }
+        should_poll = false;
+
+        if (server->poll() != OK) {
+            _logger->error(String("Error occurred while polling OpenSeeFace."));
+        }
+
+        if (!connection.is_null()) {
+            PackedByteArray packet = connection->get_packet();
+            if (packet.size() < 1 || packet.size() % PACKET_FRAME_SIZE != 0) {
+#ifdef DEBUG_ENABLED
+                _logger->error("Failed to receive packet from OpenSeeFace");
+#endif
+                continue;
+            }
+
+            Ref<OpenSeeFaceData> data;
+            data.instantiate();
+
+            data->read_packet(packet);
+
+            emit_signal(DATA_RECEIVED_SIGNAL, data);
+        } else if (server->is_connection_available()) {
+            connection = server->take_connection();
+        }
+    }
+
+    return OK;
 }
 
 Error OpenSeeFace::start(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
-    //
+    _logger->info(String("Starting OpenSeeFace"));
+
+    if (!receive_thread.is_null()) {
+        _logger->error("Receive thread is still running");
+        return ERR_ALREADY_IN_USE;
+    }
+
+    server.instantiate();
+    // TODO listen on a port
+
+    stop_reception = false;
+
+    receive_thread.instantiate();
+    receive_thread->start(Callable(this, StringName("_receive")));
+
+    set_process(true);
 
     return OK;
 }
 
 Error OpenSeeFace::stop(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
-    //
+    _logger->info(String("Stopping OpenSeeFace"));
+
+    stop_reception = true;
+
+    set_process(false);
+
+    poll_counter = 0.0;
+    should_poll = false;
+
+    receive_thread->wait_to_finish();
 
     return OK;
 }
+
+OpenSeeFace::OpenSeeFace() {
+    receive_pid = -1;
+    stop_reception = true;
+    should_poll = false;
+    poll_counter = 0.0;
+
+    set_process(false);
+}
+
+OpenSeeFace::~OpenSeeFace() {}
 
 void OpenSeeFace::_bind_methods() {
     {
         MethodInfo mi;
         mi.name = "start";
-        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &OpenSeeFace::start, mi);
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &OpenSeeFace::start, mi, std::vector<Variant>{Variant(0)});
     }
 
     {
         MethodInfo mi;
         mi.name = "stop";
-        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "stop", &OpenSeeFace::stop, mi);
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "stop", &OpenSeeFace::stop, mi, std::vector<Variant>{Variant(0)});
     }
 }
