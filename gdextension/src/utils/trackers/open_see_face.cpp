@@ -211,8 +211,11 @@ OpenSeeFaceData::OpenSeeFaceData() {
     raw_euler = Vector3();
 
     confidence = PackedFloat32Array();
+    confidence.resize(NUMBER_OF_POINTS);
     points = PackedVector2Array();
+    points.resize(NUMBER_OF_POINTS);
     points_3d = PackedVector3Array();
+    points_3d.resize(NUMBER_OF_POINTS + 2);
 }
 
 OpenSeeFaceData::~OpenSeeFaceData() {}
@@ -304,25 +307,29 @@ Error OpenSeeFace::_receive() {
         should_poll = false;
 
         if (server->poll() != OK) {
-            _logger->error(String("Error occurred while polling OpenSeeFace."));
+            logger->error(String("Error occurred while polling OpenSeeFace."));
+            continue;
         }
 
         if (!connection.is_null()) {
             PackedByteArray packet = connection->get_packet();
             if (packet.size() < 1 || packet.size() % PACKET_FRAME_SIZE != 0) {
-#ifdef DEBUG_ENABLED
-                _logger->error("Failed to receive packet from OpenSeeFace");
-#endif
+                logger->error("Failed to receive packet from OpenSeeFace");
                 continue;
             }
 
             Ref<OpenSeeFaceData> data;
             data.instantiate();
 
+            logger->debug("Reading packet");
+
             data->read_packet(packet);
+
+            logger->debug("Finished reading packet");
 
             emit_signal(DATA_RECEIVED_SIGNAL, data);
         } else if (server->is_connection_available()) {
+            logger->debug("Taking connection");
             connection = server->take_connection();
         }
     }
@@ -331,28 +338,47 @@ Error OpenSeeFace::_receive() {
 }
 
 Error OpenSeeFace::start(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
-    _logger->info(String("Starting OpenSeeFace"));
+    logger->info(String("Starting OpenSeeFace"));
 
     if (!receive_thread.is_null()) {
-        _logger->error("Receive thread is still running");
+        logger->error("Receive thread is still running");
         return ERR_ALREADY_IN_USE;
     }
 
     server.instantiate();
-    // TODO listen on a port
+    // TODO pull these values from either args or config
+    Error err = server->listen(11573, String("127.0.0.1"));
+    if (err != OK) {
+        logger->error("Server failed to start.");
+        return err;
+    }
 
     stop_reception = false;
 
+    Callable receive_method = Callable(this, StringName("_receive"));
+    if (!receive_method.is_valid()) {
+        logger->error("Callable is not valid.");
+        return ERR_BUG;
+    }
+
     receive_thread.instantiate();
-    receive_thread->start(Callable(this, StringName("_receive")));
+    err = receive_thread->start(receive_method);
+    if (err != OK) {
+        logger->error("Thread failed to start.");
+        return err;
+    }
 
     set_process(true);
 
     return OK;
 }
 
-Error OpenSeeFace::stop(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
-    _logger->info(String("Stopping OpenSeeFace"));
+Error OpenSeeFace::stop() {
+    if (stop_reception) {
+        logger->error("OpenSeeFace is not running.");
+        return ERR_DOES_NOT_EXIST;
+    }
+    logger->info(String("Stopping OpenSeeFace"));
 
     stop_reception = true;
 
@@ -362,31 +388,34 @@ Error OpenSeeFace::stop(const Variant **p_args, GDExtensionInt p_arg_count, GDEx
     should_poll = false;
 
     receive_thread->wait_to_finish();
+    receive_thread.unref();
+
+    connection->close();
+    connection.unref();
 
     return OK;
 }
 
-OpenSeeFace::OpenSeeFace() {
+OpenSeeFace::OpenSeeFace() : AbstractTracker() {
+    logger->set_logger_name("OpenSeeFace");
+
     receive_pid = -1;
     stop_reception = true;
     should_poll = false;
     poll_counter = 0.0;
-
-    set_process(false);
 }
 
 OpenSeeFace::~OpenSeeFace() {}
 
 void OpenSeeFace::_bind_methods() {
-    {
-        MethodInfo mi;
-        mi.name = "start";
-        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &OpenSeeFace::start, mi, std::vector<Variant>{Variant(0)});
-    }
+    ClassDB::bind_method(D_METHOD("_receive"), &OpenSeeFace::_receive);
 
     {
         MethodInfo mi;
-        mi.name = "stop";
-        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "stop", &OpenSeeFace::stop, mi, std::vector<Variant>{Variant(0)});
+        mi.name = "start";
+        mi.default_arguments.push_back(Variant(0));
+        ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &OpenSeeFace::start, mi);
     }
+
+    ClassDB::bind_method(D_METHOD("stop"), &OpenSeeFace::stop);
 }

@@ -36,6 +36,9 @@ class Logger : public RefCounted {
         POPUP
     };
 
+    void set_logger_name(const String &p_logger_name);
+    String get_logger_name();
+
     void notify(const int p_type, const Variant &p_arg);
     void notify_vararg(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
     void info(const Variant &p_arg);

@@ -1,13 +1,14 @@
 #include "register_types.h"
 
 #include <gdextension_interface.h>
+#include <utils/logger.h>
+#include <utils/tracker_controller.h>
+#include <utils/trackers/abstract_tracker.h>
+#include <utils/trackers/meow_face.h>
+#include <utils/trackers/open_see_face.h>
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>
-
-#include "utils/logger.h"
-#include "utils/trackers/abstract_tracker.h"
-#include "utils/trackers/open_see_face.h"
 
 using namespace godot;
 
@@ -21,6 +22,10 @@ void initialize_vpuppr_module(ModuleInitializationLevel p_level) {
     ClassDB::register_class<AbstractTracker>();
     ClassDB::register_class<OpenSeeFace>();
     ClassDB::register_class<OpenSeeFaceData>();
+    ClassDB::register_class<MeowFace>();
+    ClassDB::register_class<MeowFaceData>();
+
+    ClassDB::register_class<TrackerController>();
 }
 
 void uninitialize_vpuppr_module(ModuleInitializationLevel p_level) {

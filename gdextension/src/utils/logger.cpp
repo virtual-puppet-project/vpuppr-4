@@ -80,6 +80,14 @@ void Logger::_log_vararg(const Variant **p_args, GDExtensionInt p_arg_count, con
     _log(p_type, message);
 }
 
+void Logger::set_logger_name(const String &p_logger_name) {
+    logger_name = p_logger_name;
+}
+
+String Logger::get_logger_name() {
+    return logger_name;
+}
+
 void Logger::notify(const int p_type, const Variant &p_arg) {
     // TODO mostly unimplemented
     _log(NOTIFY, p_arg);
@@ -117,19 +125,27 @@ void Logger::warn_vararg(const Variant **p_args, GDExtensionInt p_arg_count, GDE
 }
 
 void Logger::debug(const Variant &p_arg) {
+#ifdef DEBUG_ENABLED
     _log(DEBUG, p_arg);
+#endif
 }
 
 void Logger::debug_vararg(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+#ifdef DEBUG_ENABLED
     _log_vararg(p_args, p_arg_count, DEBUG);
+#endif
 }
 
 void Logger::trace(const Variant &p_arg) {
+#ifdef DEBUG_ENABLED
     _log(TRACE, p_arg);
+#endif
 }
 
 void Logger::trace_vararg(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) {
+#ifdef DEBUG_ENABLED
     _log_vararg(p_args, p_arg_count, TRACE);
+#endif
 }
 
 void Logger::error(const Variant &p_arg) {
@@ -170,12 +186,16 @@ Ref<Logger> Logger::emplace(const String &p_logger_name) {
     Ref<Logger> logger;
     logger.instantiate();
 
-    logger->logger_name = p_logger_name;
+    logger->set_logger_name(p_logger_name);
 
     return logger;
 }
 
 void Logger::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_logger_name", "name"), &Logger::set_logger_name);
+    ClassDB::bind_method(D_METHOD("get_logger_name"), &Logger::get_logger_name);
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "logger_name"), "set_logger_name", "get_logger_name");
+
     {
         MethodInfo mi;
         mi.arguments.push_back(PropertyInfo(Variant::INT, "type"));
