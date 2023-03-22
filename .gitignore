@@ -5,6 +5,9 @@
 
 *.sconsign.dblite
 
+# Rust
+**/target/**
+
 # C++
 
 # Prerequisites

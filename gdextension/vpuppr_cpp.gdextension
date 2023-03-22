@@ -1,0 +1,9 @@
+[configuration]
+
+entry_symbol = "vpuppr_library_init"
+
+[libraries]
+
+windows.debug.x86_64 = "./cpp/out/libvpuppr.windows.template_debug.dll"
+windows.release_x86_64 = "./cpp/out/libvpuppr.windows.template_release.dll"
+

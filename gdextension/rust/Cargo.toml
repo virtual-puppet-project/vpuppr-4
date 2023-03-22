@@ -1,0 +1,13 @@
+[package]
+name = "vpuppr"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+name = "vpuppr"
+
+[dependencies]
+godot = { git = "https://github.com/godot-rust/gdext", rev = "dbce0d9cd9e5af6b8ab21032bd521bdb06045f92" }

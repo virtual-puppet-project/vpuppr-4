@@ -1,0 +1,9 @@
+[configuration]
+
+entry_symbol = "gdext_rust_init"
+
+[libraries]
+
+windows.debug.x86_64 = "./rust/target/debug/vpuppr.dll"
+windows.release_x86_64 = "./rust/target/release/vpuppr.dll"
+
