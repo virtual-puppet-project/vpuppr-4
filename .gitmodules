@@ -2,3 +2,6 @@
 	path = gdextension/cpp/godot-cpp
 	url = https://github.com/virtual-puppet-project/godot-cpp.git
 	branch = internal
+[submodule "gdextension/cpp/godot-cpp/"]
+	url = https://github.com/godotengine/godot-cpp.git
+	branch = godot-4.0.1-stable
