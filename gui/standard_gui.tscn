@@ -1,11 +1,76 @@
-[gd_scene load_steps=2 format=3 uid="uid://ffi41kh5qxl"]
+[gd_scene load_steps=6 format=3 uid="uid://ffi41kh5qxl"]
 
 [ext_resource type="Script" path="res://gui/standard_gui.gd" id="1_0h3o5"]
+[ext_resource type="Theme" uid="uid://dbf0d25iqye5y" path="res://assets/main_theme.theme" id="2_sg4fw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pe6gk"]
+bg_color = Color(0.113725, 0.133333, 0.160784, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8drnl"]
+content_margin_left = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.113725, 0.133333, 0.160784, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nihx4"]
+bg_color = Color(0.211765, 0.239216, 0.290196, 1)
 
 [node name="StandardGui" type="CanvasLayer"]
 script = ExtResource("1_0h3o5")
 
-[node name="Label" type="Label" parent="."]
-offset_right = 40.0
-offset_bottom = 23.0
-text = "This is a test!"
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_sg4fw")
+theme_override_constants/separation = 0
+
+[node name="MenuBar" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pe6gk")
+
+[node name="HFlowContainer" type="HFlowContainer" parent="VBoxContainer/MenuBar"]
+layout_mode = 2
+
+[node name="App" type="MenuButton" parent="VBoxContainer/MenuBar/HFlowContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "App"
+
+[node name="Debug" type="MenuButton" parent="VBoxContainer/MenuBar/HFlowContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Debug"
+
+[node name="Help" type="MenuButton" parent="VBoxContainer/MenuBar/HFlowContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Help"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+split_offset = 120
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8drnl")
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer/PanelContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nihx4")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/PanelContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MenuItems" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/PanelContainer/PanelContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Empty" type="Control" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+mouse_filter = 2

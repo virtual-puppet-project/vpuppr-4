@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 GODOT_CPP_BUILT_FILE=".godot-cpp-built"
 
 # https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
@@ -49,18 +51,18 @@ echo "# Finished building GDExtension CPP                                       
 echo "################################################################################"
 echo ""
 
+echo ""
+echo "################################################################################"
+echo "# Building GDExtension Rust                                                    #"
+echo "################################################################################"
+echo ""
+
 cd "$SCRIPT_DIR/gdextension/rust"
 
 if [ -z  "${GODOT4_BIN}" ]; then
 	echo "GODOT4_BIN env var is required"
 	exit 1
 fi
-
-echo ""
-echo "################################################################################"
-echo "# Building GDExtension Rust                                                    #"
-echo "################################################################################"
-echo ""
 
 cargo build
 

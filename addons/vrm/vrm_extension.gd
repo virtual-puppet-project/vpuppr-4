@@ -7,6 +7,8 @@ const vrm_collidergroup = preload("./vrm_collidergroup.gd")
 const vrm_springbone = preload("./vrm_springbone.gd")
 const vrm_top_level = preload("./vrm_toplevel.gd")
 
+const mtoon_template = preload("./mtoon_template.tres") # Must be preload to workaround #72143
+
 var vrm_meta: Resource = null
 
 const ROTATE_180_BASIS = Basis(Vector3(-1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, -1))
@@ -26,19 +28,20 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 		var arr: Array = mesh.get_surface_arrays(surf_idx)
 		var name: String = mesh.get_surface_name(surf_idx)
 		var bscount = mesh.get_blend_shape_count()
-		var bsarr: Array = []
+		var bsarr: Array[Array] = []
 		for bsidx in range(bscount):
 			bsarr.append(mesh.get_surface_blend_shape_arrays(surf_idx, bsidx))
 		var lods: Dictionary = {}  # mesh.surface_get_lods(surf_idx) # get_lods(mesh, surf_idx)
 		var mat: Material = mesh.get_surface_material(surf_idx)
 		var vert_arr_len: int = len(arr[ArrayMesh.ARRAY_VERTEX])
 		var vertarr: PackedVector3Array = arr[ArrayMesh.ARRAY_VERTEX]
+		var invert_vector = Vector3(-1, 1, -1)
 		for i in range(vert_arr_len):
-			vertarr[i] = Vector3(-1, 1, -1) * vertarr[i]
+			vertarr[i] = invert_vector * vertarr[i]
 		if typeof(arr[ArrayMesh.ARRAY_NORMAL]) == TYPE_PACKED_VECTOR3_ARRAY:
 			var normarr: PackedVector3Array = arr[ArrayMesh.ARRAY_NORMAL]
 			for i in range(vert_arr_len):
-				normarr[i] = Vector3(-1, 1, -1) * normarr[i]
+				normarr[i] = invert_vector * normarr[i]
 		if typeof(arr[ArrayMesh.ARRAY_TANGENT]) == TYPE_PACKED_FLOAT32_ARRAY:
 			var tangarr: PackedFloat32Array = arr[ArrayMesh.ARRAY_TANGENT]
 			for i in range(vert_arr_len):
@@ -47,11 +50,11 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 		for bsidx in range(len(bsarr)):
 			vertarr = bsarr[bsidx][ArrayMesh.ARRAY_VERTEX]
 			for i in range(vert_arr_len):
-				vertarr[i] = Vector3(-1, 1, -1) * vertarr[i]
+				vertarr[i] = invert_vector * vertarr[i]
 			if typeof(bsarr[bsidx][ArrayMesh.ARRAY_NORMAL]) == TYPE_PACKED_VECTOR3_ARRAY:
 				var normarr: PackedVector3Array = bsarr[bsidx][ArrayMesh.ARRAY_NORMAL]
 				for i in range(vert_arr_len):
-					normarr[i] = Vector3(-1, 1, -1) * normarr[i]
+					normarr[i] = invert_vector * normarr[i]
 			if typeof(bsarr[bsidx][ArrayMesh.ARRAY_TANGENT]) == TYPE_PACKED_FLOAT32_ARRAY:
 				var tangarr: PackedFloat32Array = bsarr[bsidx][ArrayMesh.ARRAY_TANGENT]
 				for i in range(vert_arr_len):
@@ -66,27 +69,36 @@ func adjust_mesh_zforward(mesh: ImporterMesh):
 	for surf_idx in range(surf_count):
 		var prim: int = surf_data_by_mesh[surf_idx].get("prim")
 		var arr: Array = surf_data_by_mesh[surf_idx].get("arr")
-		var bsarr: Array = surf_data_by_mesh[surf_idx].get("bsarr")
+		var bsarr: Array[Array] = surf_data_by_mesh[surf_idx].get("bsarr")
 		var lods: Dictionary = surf_data_by_mesh[surf_idx].get("lods")
 		var fmt_compress_flags: int = surf_data_by_mesh[surf_idx].get("fmt_compress_flags")
 		var name: String = surf_data_by_mesh[surf_idx].get("name")
 		var mat: Material = surf_data_by_mesh[surf_idx].get("mat")
 		mesh.add_surface(prim, arr, bsarr, lods, mat, name, fmt_compress_flags)
 
-
 func skeleton_rename(gstate: GLTFState, p_base_scene: Node, p_skeleton: Skeleton3D, p_bone_map: BoneMap):
+	var original_bone_names_to_indices = {}
+	var original_indices_to_bone_names = {}
+	var original_indices_to_new_bone_names = {}
 	var skellen: int = p_skeleton.get_bone_count()
+
+	# Rename bones to their humanoid equivalents.
 	for i in range(skellen):
 		var bn: StringName = p_bone_map.find_profile_bone_name(p_skeleton.get_bone_name(i))
+		original_bone_names_to_indices[p_skeleton.get_bone_name(i)] = i
+		original_indices_to_bone_names[i] = p_skeleton.get_bone_name(i)
+		original_indices_to_new_bone_names[i] = bn
 		if bn != StringName():
 			p_skeleton.set_bone_name(i, bn)
+
 	var gnodes = gstate.nodes
 	var root_bone_name = "Root"
 	if p_skeleton.find_bone(root_bone_name) == -1:
 		p_skeleton.add_bone(root_bone_name)
 		var new_root_bone_id = p_skeleton.find_bone(root_bone_name)
 		for root_bone_id in p_skeleton.get_parentless_bones():
-			p_skeleton.set_bone_parent(root_bone_id, new_root_bone_id)
+			if root_bone_id != new_root_bone_id:
+				p_skeleton.set_bone_parent(root_bone_id, new_root_bone_id)
 	for gnode in gnodes:
 		var bn: StringName = p_bone_map.find_profile_bone_name(gnode.resource_name)
 		if bn != StringName():
@@ -94,16 +106,18 @@ func skeleton_rename(gstate: GLTFState, p_base_scene: Node, p_skeleton: Skeleton
 
 	var nodes: Array[Node] = p_base_scene.find_children("*", "ImporterMeshInstance3D")
 	while not nodes.is_empty():
-		var mi = nodes.pop_back() as ImporterMeshInstance3D
+		var mi : ImporterMeshInstance3D = nodes.pop_back() as ImporterMeshInstance3D
 		var skin: Skin = mi.skin
 		if skin:
 			var node = mi.get_node(mi.skeleton_path)
 			if node and node is Skeleton3D and node == p_skeleton:
 				skellen = skin.get_bind_count()
 				for i in range(skellen):
-					var bn: StringName = p_bone_map.find_profile_bone_name(skin.get_bind_name(i))
-					if bn != StringName():
-						skin.set_bind_name(i, bn)
+					# Bone name from skin (un-remapped bone name)
+					var bind_bone_name = skin.get_bind_name(i)
+					var bone_name_from_skel: StringName = p_bone_map.find_profile_bone_name(bind_bone_name)
+					if not bone_name_from_skel.is_empty():
+						skin.set_bind_name(i, bone_name_from_skel)
 
 	# Rename bones in all Nodes by calling method.
 	nodes = p_base_scene.find_children("*")
@@ -386,47 +400,57 @@ func _process_vrm_material(orig_mat: Material, gltf_images: Array, vrm_mat_props
 	if godot_outline_shader_name:
 		godot_shader_outline = ResourceLoader.load(godot_outline_shader_name + ".gdshader")
 
-	var new_mat = ShaderMaterial.new()
+	var new_mat : ShaderMaterial = mtoon_template.duplicate()
 	new_mat.resource_name = orig_mat.resource_name
 	new_mat.shader = godot_shader
-	if maintex_info.get("tex", null) != null:
-		new_mat.set_shader_parameter("_MainTex", maintex_info["tex"])
+	if godot_shader_outline == null:
+		new_mat.next_pass = null
+	else:
+		new_mat.next_pass = new_mat.next_pass.duplicate()
+	var outline_mat: ShaderMaterial = new_mat.next_pass
 
-	new_mat.set_shader_parameter("_MainTex_ST", Plane(maintex_info["scale"].x, maintex_info["scale"].y, maintex_info["offset"].x, maintex_info["offset"].y))
+	var texture_repeat = Vector4(maintex_info["scale"].x, maintex_info["scale"].y, maintex_info["offset"].x, maintex_info["offset"].y)
+	new_mat.set_shader_parameter("_MainTex_ST", texture_repeat)
+	if outline_mat != null:
+		outline_mat.set_shader_parameter("_MainTex_ST", texture_repeat)
 
 	for param_name in ["_MainTex", "_ShadeTexture", "_BumpMap", "_RimTexture", "_SphereAdd", "_EmissionMap", "_OutlineWidthTexture", "_UvAnimMaskTexture"]:
 		var tex_info: Dictionary = _vrm_get_texture_info(gltf_images, vrm_mat_props, param_name)
 		if tex_info.get("tex", null) != null:
 			new_mat.set_shader_parameter(param_name, tex_info["tex"])
+			if outline_mat != null:
+				outline_mat.set_shader_parameter(param_name, tex_info["tex"])
 
 	for param_name in vrm_mat_props["floatProperties"]:
 		new_mat.set_shader_parameter(param_name, vrm_mat_props["floatProperties"][param_name])
+		if outline_mat != null:
+			outline_mat.set_shader_parameter(param_name, vrm_mat_props["floatProperties"][param_name])
 
 	for param_name in ["_Color", "_ShadeColor", "_RimColor", "_EmissionColor", "_OutlineColor"]:
 		if param_name in vrm_mat_props["vectorProperties"]:
 			var param_val = vrm_mat_props["vectorProperties"][param_name]
-			#### TODO: Use Color
-			### But we want to keep 4.0 compat which does not gamma correct color.
-			var color_param: Plane = Plane(param_val[0], param_val[1], param_val[2], param_val[3])
+			# TODO: Use Color for non-HDR color slots (_Color, _ShadeColor and _OutlineColor?)
+			# Or, use Color for all, and split _EmissionColor into emission color and emission strength.
+			var color_param: Vector4 = Vector4(param_val[0], param_val[1], param_val[2], param_val[3])
 			new_mat.set_shader_parameter(param_name, color_param)
+			if outline_mat != null:
+				outline_mat.set_shader_parameter(param_name, color_param)
 
 	# FIXME: setting _Cutoff to disable cutoff is a bit unusual.
 	if blend_mode == int(RenderMode.Cutout):
 		new_mat.set_shader_parameter("_AlphaCutoutEnable", 1.0)
-
-	if godot_shader_outline != null:
-		var outline_mat = new_mat.duplicate()
-		outline_mat.shader = godot_shader_outline
-
-		new_mat.next_pass = outline_mat
+		if outline_mat != null:
+			outline_mat.set_shader_parameter("_AlphaCutoutEnable", 1.0)
 
 	return new_mat
 
 
 func _update_materials(vrm_extension: Dictionary, gstate: GLTFState) -> void:
+	print("Unique names: ", gstate.get_unique_names())
 	var images = gstate.get_images()
-	#print(images)
+	print("Images: ", images)
 	var materials: Array = gstate.get_materials()
+	print("Materials: ", materials)
 	var spatial_to_shader_mat: Dictionary = {}
 
 	# Render priority setup
@@ -450,12 +474,14 @@ func _update_materials(vrm_extension: Dictionary, gstate: GLTFState) -> void:
 	render_queue_to_priority.sort()
 
 	# Material conversions
+	print("Material count: ", materials.size())
 	for i in range(materials.size()):
 		var oldmat: Material = materials[i]
 		if oldmat is ShaderMaterial:
 			# Indicates that the user asked to keep existing materials. Avoid changing them.
 			print("Material " + str(i) + ": " + str(oldmat.resource_name) + " already is shader.")
 			continue
+		print("Old material: ", oldmat)
 		var newmat: Material = _process_khr_material(oldmat, gstate.json["materials"][i])
 		var vrm_mat_props: Dictionary = vrm_extension["materialProperties"][i]
 		newmat = _process_vrm_material(newmat, images, vrm_mat_props)
@@ -493,8 +519,12 @@ func _update_materials(vrm_extension: Dictionary, gstate: GLTFState) -> void:
 		var gltfmesh: GLTFMesh = meshes[i]
 		var mesh = gltfmesh.mesh
 		mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
+		print(mesh.get_surface_count())
 		for surf_idx in range(mesh.get_surface_count()):
 			var surfmat = mesh.get_surface_material(surf_idx)
+			print("Mesh: ", mesh)
+			print("Surface material: ", surfmat)
+			print("Spatial to shader material: ", spatial_to_shader_mat)
 			if spatial_to_shader_mat.has(surfmat):
 				mesh.set_surface_material(surf_idx, spatial_to_shader_mat[surfmat])
 			else:
@@ -655,7 +685,7 @@ func _create_animation_player(
 					newvalue = Color(tv[0], tv[1], tv[2], tv[3])
 				elif matbind["parameterName"] == "_MainTex" or matbind["parameterName"] == "_MainTex_ST":
 					origvalue = param
-					newvalue = (Plane(tv[2], tv[3], tv[0], tv[1]) if matbind["parameterName"] == "_MainTex" else Plane(tv[0], tv[1], tv[2], tv[3]))
+					newvalue = (Vector4(tv[2], tv[3], tv[0], tv[1]) if matbind["parameterName"] == "_MainTex" else Vector4(tv[0], tv[1], tv[2], tv[3]))
 				elif param is float:
 					origvalue = param
 					newvalue = tv[0]
@@ -762,7 +792,8 @@ func _create_animation_player(
 		if not animplayer.has_animation("LOOKLEFT"):
 			anim = Animation.new()
 			animation_library.add_animation("LOOKLEFT", anim)
-		anim = animplayer.get_animation("LOOKLEFT")
+		else:
+			anim = animplayer.get_animation("LOOKLEFT")
 		if anim and lefteye > 0 and righteye > 0:
 			var animtrack: int = anim.add_track(Animation.TYPE_ROTATION_3D)
 			anim.track_set_path(animtrack, leftEyePath)
@@ -788,7 +819,8 @@ func _create_animation_player(
 		if not animplayer.has_animation("LOOKRIGHT"):
 			anim = Animation.new()
 			animation_library.add_animation("LOOKRIGHT", anim)
-		anim = animplayer.get_animation("LOOKRIGHT")
+		else:
+			anim = animplayer.get_animation("LOOKRIGHT")
 		if anim and lefteye > 0 and righteye > 0:
 			var animtrack: int = anim.add_track(Animation.TYPE_ROTATION_3D)
 			anim.track_set_path(animtrack, leftEyePath)
@@ -814,7 +846,8 @@ func _create_animation_player(
 		if not animplayer.has_animation("LOOKUP"):
 			anim = Animation.new()
 			animation_library.add_animation("LOOKUP", anim)
-		anim = animplayer.get_animation("LOOKUP")
+		else:
+			anim = animplayer.get_animation("LOOKUP")
 		if anim and lefteye > 0 and righteye > 0:
 			var animtrack: int = anim.add_track(Animation.TYPE_ROTATION_3D)
 			anim.track_set_path(animtrack, leftEyePath)
@@ -840,7 +873,8 @@ func _create_animation_player(
 		if not animplayer.has_animation("LOOKDOWN"):
 			anim = Animation.new()
 			animation_library.add_animation("LOOKDOWN", anim)
-		anim = animplayer.get_animation("LOOKDOWN")
+		else:
+			anim = animplayer.get_animation("LOOKDOWN")
 		if anim and lefteye > 0 and righteye > 0:
 			var animtrack: int = anim.add_track(Animation.TYPE_ROTATION_3D)
 			anim.track_set_path(animtrack, leftEyePath)
@@ -870,7 +904,7 @@ func _parse_secondary_node(secondary_node: Node, vrm_extension: Dictionary, gsta
 	var nodes = gstate.get_nodes()
 	var skeletons = gstate.get_skeletons()
 
-	var offset_flip: Vector3 = Vector3(-1, 1, -1) if is_vrm_0 else Vector3(1, 1, 1)
+	var offset_flip: Vector3 = Vector3(-1, 1, 1) if is_vrm_0 else Vector3(1, 1, 1)
 
 	var collider_groups: Array = [].duplicate()
 	for cgroup in vrm_extension["secondaryAnimation"]["colliderGroups"]:
@@ -1016,7 +1050,7 @@ func _add_vrm_nodes_to_skin(obj: Dictionary) -> bool:
 	return true
 
 
-func _import_preflight(gstate: GLTFState, psa = PackedStringArray(), psa2: Variant = null) -> int:
+func _import_preflight(gstate: GLTFState, psa = PackedStringArray(), psa2: Variant = null) -> Error:
 	var gltf_json_parsed: Dictionary = gstate.json
 	if not _add_vrm_nodes_to_skin(gltf_json_parsed):
 		push_error("Failed to find required VRM keys in json")
@@ -1039,9 +1073,9 @@ func apply_retarget(gstate: GLTFState, root_node: Node, skeleton: Skeleton3D, bo
 	return poses
 
 
-func _import_post(gstate: GLTFState, node: Node) -> int:
+func _import_post(gstate: GLTFState, node: Node) -> Error:
 	var gltf: GLTFDocument = GLTFDocument.new()
-	var root_node: Node = gltf.generate_scene(gstate, 30)
+	var root_node: Node = node
 
 	var is_vrm_0: bool = true
 
@@ -1064,7 +1098,9 @@ func _import_post(gstate: GLTFState, node: Node) -> int:
 	var skeletons = gstate.get_skeletons()
 	var hipsNode: GLTFNode = gstate.nodes[human_bone_to_idx["hips"]]
 	var skeleton: Skeleton3D = _get_skel_godot_node(gstate, gstate.nodes, skeletons, hipsNode.skeleton)
+	print("skeleton", skeleton)
 	var gltfnodes: Array = gstate.nodes
+	print("gltfnodes: ", gltfnodes)
 
 	var humanBones: BoneMap = BoneMap.new()
 	humanBones.profile = SkeletonProfileHumanoid.new()
@@ -1089,7 +1125,9 @@ func _import_post(gstate: GLTFState, node: Node) -> int:
 		for i in range(skeleton.get_bone_count()):
 			pose_diffs.append(Basis.IDENTITY)
 
+	print("Updating materials")
 	_update_materials(vrm_extension, gstate)
+	print("Finished updating materials")
 
 	var animplayer = AnimationPlayer.new()
 	animplayer.name = "anim"

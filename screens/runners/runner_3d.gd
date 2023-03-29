@@ -37,5 +37,5 @@ func try_set_model(model: Node3D) -> int:
 	
 	_model = model
 	_model_gimbal.add_child(_model)
-		
+	
 	return OK
