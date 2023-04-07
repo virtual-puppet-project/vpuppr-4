@@ -370,6 +370,8 @@ Error OpenSeeFace::start(const Variant **p_args, GDExtensionInt p_arg_count, GDE
 
     set_process(true);
 
+    running = true;
+
     return OK;
 }
 
@@ -392,6 +394,8 @@ Error OpenSeeFace::stop() {
 
     connection->close();
     connection.unref();
+
+    running = false;
 
     return OK;
 }
@@ -416,6 +420,7 @@ void OpenSeeFace::_bind_methods() {
         mi.default_arguments.push_back(Variant(0));
         ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &OpenSeeFace::start, mi);
     }
-
     ClassDB::bind_method(D_METHOD("stop"), &OpenSeeFace::stop);
+
+    ClassDB::bind_static_method("OpenSeeFace", D_METHOD("identifier"), &OpenSeeFace::open_see_face_identifier);
 }

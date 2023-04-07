@@ -9,6 +9,7 @@ const DEFAULT_SCREEN_SIZE := Vector2i(1600, 900)
 var _logger := Logger.emplace("AppManager")
 
 var cm: ConfigManager = null
+var tm: TrackerManager = null
 
 #region Debounce
 
@@ -27,6 +28,7 @@ var should_save := false
 
 func _init() -> void:
 	cm = ConfigManager.new()
+	tm = TrackerManager.new()
 
 func _ready() -> void:
 	

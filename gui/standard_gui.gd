@@ -20,30 +20,33 @@ func _ready() -> void:
 		pass
 	)
 	
-#	var osf := OpenSeeFace.new()
-#	osf.data_received.connect(func(data: OpenSeeFaceData) -> void:
-#		print(data.eye_left, data.eye_right)
-#	)
-#
-#	add_child(osf)
-#
-#	print("osf added as child")
-#
-#	var err := osf.start(0)
-#	if err != OK:
-#		print(err)
-	
-#	var mf := MeowFace.new()
-#	mf.data_received.connect(func(data: MeowFaceData) -> void:
-#		print(JSON.stringify(data.get_blend_shapes(), "\t"))
-#	)
-#	add_child(mf)
-#
-#	mf.start("192.168.88.229", 21412)
+	# TODO testing
+	var tracking_button := Button.new()
+	tracking_button.name = "Tracking"
+	tracking_button.text = "Tracking"
+	tracking_button.pressed.connect(func() -> void:
+		_popup(preload("res://gui/tracking.tscn"))
+	)
+	_menu_items.add_child(tracking_button)
 
 #-----------------------------------------------------------------------------#
 # Private functions
 #-----------------------------------------------------------------------------#
+
+func _popup(ui: PackedScene) -> void:
+	var instance = ui.instantiate()
+	
+	var window := Window.new()
+#	window.current_screen = get_tree().root.current_screen
+	window.add_child(instance)
+	window.title = instance.name
+	
+	window.close_requested.connect(func() -> void:
+		window.queue_free()
+	)
+	
+	get_tree().root.add_child(window)
+	window.popup_centered()
 
 #-----------------------------------------------------------------------------#
 # Public functions

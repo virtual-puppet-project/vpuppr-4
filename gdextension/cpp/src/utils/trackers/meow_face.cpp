@@ -11,7 +11,7 @@ Dictionary MeowFaceData::get_blend_shapes() {
 }
 
 void MeowFaceData::set_head_rotation(const Dictionary &p_data) {
-    head_rotation = Vector3((float)p_data["y"], (float)p_data["x"], -(float)p_data["z"]);
+    head_rotation = Vector3((float)p_data["y"], (float)p_data["x"], (float)p_data["z"]);
 }
 
 Vector3 MeowFaceData::get_head_rotation() {
@@ -19,7 +19,7 @@ Vector3 MeowFaceData::get_head_rotation() {
 }
 
 void MeowFaceData::set_head_position(const Dictionary &p_data) {
-    head_position = Vector3((float)p_data["y"], (float)p_data["x"], -(float)p_data["z"]);
+    head_position = Vector3((float)p_data["y"], (float)p_data["x"], (float)p_data["z"]);
 }
 
 Vector3 MeowFaceData::get_head_position() {
@@ -43,7 +43,7 @@ Vector3 MeowFaceData::get_right_eye_rotation() {
 }
 
 void MeowFaceData::parse(const Dictionary &p_data) {
-    set_head_rotation(p_data.get("Rosition", _default_xyz()));
+    set_head_rotation(p_data.get("Rotation", _default_xyz()));
     set_head_position(p_data.get("Position", _default_xyz()));
     set_left_eye_rotation(p_data.get("EyeLeft", _default_xyz()));
     set_right_eye_rotation(p_data.get("EyeRight", _default_xyz()));
@@ -182,6 +182,8 @@ Error MeowFace::start(const Variant **p_args, GDExtensionInt p_arg_count, GDExte
         return ERR_BUG;
     }
 
+    running = true;
+
     return OK;
 }
 
@@ -203,7 +205,13 @@ Error MeowFace::stop() {
     client->close();
     client.unref();
 
+    running = false;
+
     return OK;
+}
+
+StringName MeowFace::identifier() {
+    return StringName("MeowFace");
 }
 
 MeowFace::MeowFace() : AbstractTracker() {
@@ -225,6 +233,7 @@ void MeowFace::_bind_methods() {
         mi.arguments.push_back(PropertyInfo(Variant::INT, "port"));
         ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &MeowFace::start, mi);
     }
-
     ClassDB::bind_method(D_METHOD("stop"), &MeowFace::stop);
+
+    ClassDB::bind_static_method("MeowFace", D_METHOD("identifier"), &MeowFace::meow_face_identifier);
 }

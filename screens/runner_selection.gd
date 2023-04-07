@@ -172,10 +172,10 @@ func _ready() -> void:
 	var init_runners_thread := Thread.new()
 	init_runners_thread.start(func() -> void:
 		# TODO testing only, need to pull these values from metadata
-		for i in (func() -> Array:
+		for data in (func() -> Array:
 			var r := []
 			
-			for i in 10:
+			for i in 2:
 				var d0 := RunnerData.new()
 				d0.name = "Test 0"
 				d0.runner_path = "res://screens/runners/runner_3d.tscn"
@@ -208,7 +208,7 @@ func _ready() -> void:
 		).call():
 			var item := RunnerItem.instantiate()
 			item.clicked.connect(func() -> void:
-				var handler: RunnerHandler = await RunnerHandler.new(i)
+				var handler: RunnerHandler = await RunnerHandler.new(data)
 				if handler.get_child_count() < 1:
 					_logger.error(
 						"An error occurred while loading the runner, declining to start handler")
@@ -244,14 +244,14 @@ func _ready() -> void:
 			
 			_runners.add_child(item)
 			
-			item.init_favorite(i.favorite)
-			item.title.text = i.name
-			item.model.text = i.model_path.get_file()
-			item.last_used.text = i.last_used.to_string()
-			item.last_used_datetime = i.last_used
+			item.init_favorite(data.favorite)
+			item.title.text = data.name
+			item.model.text = data.model_path.get_file()
+			item.last_used.text = data.last_used.to_string()
+			item.last_used_datetime = data.last_used
 			# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
 			# directly throws an error in a thread. An indirect error is fine though
-			item.init_preview(i.preview_path)
+			item.init_preview(data.preview_path)
 	)
 	
 	_runner_container.hide()

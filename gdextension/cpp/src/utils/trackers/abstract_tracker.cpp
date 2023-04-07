@@ -12,6 +12,10 @@ Error AbstractTracker::stop() {
     return ERR_METHOD_NOT_FOUND;
 }
 
+bool AbstractTracker::is_running() const {
+    return running;
+}
+
 void AbstractTracker::_ready() {
     set_process(false);
 }
@@ -22,9 +26,18 @@ void AbstractTracker::_exit_tree() {
 
 AbstractTracker::AbstractTracker() {
     logger = Logger::emplace("AbstractTracker");
+    running = false;
 }
 
 AbstractTracker::~AbstractTracker() {}
+
+StringName AbstractTracker::open_see_face_identifier() {
+    return StringName("OpenSeeFace");
+}
+
+StringName AbstractTracker::meow_face_identifier() {
+    return StringName("MeowFace");
+}
 
 void AbstractTracker::_bind_methods() {
     {
@@ -32,8 +45,9 @@ void AbstractTracker::_bind_methods() {
         mi.name = "start";
         ClassDB::bind_vararg_method(METHOD_FLAG_VARARG, "start", &AbstractTracker::start, mi);
     }
-
     ClassDB::bind_method(D_METHOD("stop"), &AbstractTracker::stop);
+
+    ClassDB::bind_method(D_METHOD("is_running"), &AbstractTracker::is_running);
 
     ADD_SIGNAL(MethodInfo(DATA_RECEIVED_SIGNAL, PropertyInfo(Variant::OBJECT, "data")));
 }

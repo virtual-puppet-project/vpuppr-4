@@ -6,6 +6,8 @@ extends Node
 ## The logger for the RunnerHandler.
 var _logger := Logger.emplace("RunnerHandler")
 
+var runner: Node = null
+
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
@@ -28,7 +30,7 @@ func _init(data: RunnerData) -> void:
 	
 	add_child(gui)
 	
-	var runner: Node = _try_load(data.runner_path)
+	runner = _try_load(data.runner_path)
 	if runner == null:
 		fail_alert.call("Unable to load runner, bailing out!")
 		return
@@ -37,6 +39,7 @@ func _init(data: RunnerData) -> void:
 	
 	add_child(runner)
 	
+	# TODO need better way to set model scripts
 	var model_thread := Thread.new()
 	model_thread.start(func() -> Node:
 		var model: Node = null
@@ -57,6 +60,9 @@ func _init(data: RunnerData) -> void:
 					return null
 				
 				model = gltf.generate_scene(state)
+				model.name = data.model_path.get_file()
+				
+				model.set_script(Puppet3D)
 			"vrm":
 				var gltf: GLTFDocument = GLTFDocument.new()
 				var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()

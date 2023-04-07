@@ -29,10 +29,20 @@ func add_tracker(name: String, tracker: AbstractTracker) -> int:
 	return OK
 
 func remove_tracker(name: String) -> int:
-	if not _trackers.erase(name):
+	if not _trackers.has(name):
 		return ERR_DOES_NOT_EXIST
 	
+	_trackers[name].stop()
+	
+	_trackers.erase(name)
+	
 	return OK
+
+func is_running(name: String) -> bool:
+	if not _trackers.has(name):
+		return false
+	
+	return _trackers[name].is_running()
 
 func start(args: Dictionary) -> int:
 	for tracker_name in args:

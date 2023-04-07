@@ -13,6 +13,8 @@ class AbstractTracker : public Node {
 
     static constexpr char *DATA_RECEIVED_SIGNAL = "data_received";
 
+    bool running;
+
    protected:
     static void _bind_methods();
     Ref<Logger> logger;
@@ -21,8 +23,13 @@ class AbstractTracker : public Node {
     virtual Error start(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error);
     virtual Error stop();
 
+    bool is_running() const;
+
     void _ready() override;
     void _exit_tree() override;
+
+    static StringName open_see_face_identifier();
+    static StringName meow_face_identifier();
 
     AbstractTracker();
     ~AbstractTracker();

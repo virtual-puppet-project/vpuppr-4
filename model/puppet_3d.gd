@@ -1,26 +1,22 @@
-class_name Runner3D
+class_name Puppet3D
 extends Node3D
 
-## Runner for 3D models.
-##
-## Handles:
-## - glb
-## - vrm
+var _logger := Logger.emplace("Puppet3D")
 
-var _logger := Logger.emplace("Runner3D")
-
-var _model_gimbal: Node3D = Node3D.new()
-var _model: Node3D = null
-
-var handler: RunnerHandler = null
+var _skeleton: Skeleton3D = null
+var _head_bone: int = -1
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
 func _ready() -> void:
-	_model_gimbal.name = "ModelGimbal"
-	add_child(_model_gimbal)
+	_skeleton = find_child("Skeleton3D")
+	if _skeleton == null:
+		_logger.error("No skeleton found")
+		return
+	
+	_head_bone = _skeleton.find_bone("head")
 
 #-----------------------------------------------------------------------------#
 # Private functions
@@ -30,13 +26,3 @@ func _ready() -> void:
 # Public functions
 #-----------------------------------------------------------------------------#
 
-## Tries to set the model and add it to the SceneTree.
-func try_set_model(model: Node3D) -> int:
-	if _model != null:
-		_logger.error("Model already exists, please unset the model first")
-		return ERR_ALREADY_EXISTS
-	
-	_model = model
-	_model_gimbal.add_child(_model)
-	
-	return OK
