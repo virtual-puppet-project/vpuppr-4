@@ -1,9 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://s084ncxan8ox"]
+[gd_scene load_steps=2 format=3 uid="uid://dccvqobmhury"]
 
-[ext_resource type="Script" path="res://screens/runners/runner_3d.gd" id="1_6srim"]
+[ext_resource type="Script" path="res://screens/runners/vrm_runner.gd" id="1_0ee25"]
 
-[node name="Runner3D" type="Node3D"]
-script = ExtResource("1_6srim")
+[node name="VRMRunner" type="Node3D"]
+script = ExtResource("1_0ee25")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2)

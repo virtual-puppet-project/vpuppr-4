@@ -1,22 +1,12 @@
-class_name Puppet3D
-extends Node3D
-
-var _logger := Logger.emplace("Puppet3D")
-
-var _skeleton: Skeleton3D = null
-var _head_bone: int = -1
+class_name PNGTuberRunner
+extends Node2D
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
-func _ready() -> void:
-	_skeleton = find_child("Skeleton3D")
-	if _skeleton == null:
-		_logger.error("No skeleton found")
-		return
-	
-	_head_bone = _skeleton.find_bone("head")
+func _init() -> void:
+	pass
 
 #-----------------------------------------------------------------------------#
 # Private functions
@@ -25,3 +15,11 @@ func _ready() -> void:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+func feature_toggled(feature_name: String, enabled: bool) -> void:
+	match feature_name:
+		MicInput.FEATURE_NAME:
+			pass
+		_:
+			pass
+	pass

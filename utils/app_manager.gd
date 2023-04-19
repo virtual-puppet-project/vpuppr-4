@@ -49,3 +49,11 @@ func _exit_tree() -> void:
 # Public functions
 #-----------------------------------------------------------------------------#
 
+## Gets the currently active runner.
+func get_runner() -> RunnerHandler:
+	var handler: Variant = get_tree().current_scene
+	if not handler is RunnerHandler:
+		_logger.error("Unexpected node received when getting Runner: %s" % str(handler))
+		return null
+	
+	return handler

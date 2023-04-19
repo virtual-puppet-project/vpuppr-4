@@ -1,10 +1,14 @@
-extends VBoxContainer
+extends PanelContainer
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
 func _ready() -> void:
+	%StopAllTrackers.pressed.connect(func() -> void:
+		AM.tm.stop()
+	)
+	
 	# TODO testing
 	%MeowFace.set_pressed_no_signal(AM.tm.is_running(MeowFace.identifier()))
 	%MeowFace.toggled.connect(func(enabled: bool) -> void:

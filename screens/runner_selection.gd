@@ -178,18 +178,35 @@ func _ready() -> void:
 			for i in 2:
 				var d0 := RunnerData.new()
 				d0.name = "Test 0"
-				d0.runner_path = "res://screens/runners/runner_3d.tscn"
+				d0.runner_path = "res://screens/runners/vrm_runner.tscn"
 				d0.gui_path = "res://gui/standard_gui.tscn"
 				d0.model_path = "res://assets/3d-models/rubber-duck.glb"
 				d0.preview_path = "res://assets/VpupprDuck.png"
 				d0.last_used.day = 123
 				d0.favorite = true
+				d0.gui_menus = [
+					GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
+					GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
+				]
 				
 				r.append(d0)
 				
+				var png := RunnerData.new()
+				png.name = "PNGTuber"
+				png.runner_path = "res://screens/runners/png_tuber_runner.tscn"
+				png.gui_path = "res://gui/standard_gui.tscn"
+				png.model_path
+				png.preview_path = "C:/Users/theaz/Pictures/astro.png"
+				png.gui_menus = [
+					GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
+					GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
+				]
+				
+				r.append(png)
+				
 				var d1 := RunnerData.new()
 				d1.name = "Some other data"
-				d1.runner_path = "res://screens/runners/runner_3d.tscn"
+				d1.runner_path = "res://screens/runners/vrm_runner.tscn"
 				d1.gui_path = "res://gui/standard_gui.tscn"
 				d1.model_path = "res://assets/3d-models/AliciaSolid_vrm-0.51.vrm"
 				d1.preview_path = "C:/Users/theaz/Pictures/astro.png"

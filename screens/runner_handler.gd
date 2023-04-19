@@ -8,6 +8,9 @@ var _logger := Logger.emplace("RunnerHandler")
 
 var runner: Node = null
 
+## Various features available in the runner. Features can be added or removed.
+var features := {}
+
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
@@ -27,6 +30,9 @@ func _init(data: RunnerData) -> void:
 		_logger.error(fail_text)
 		OS.alert(fail_text)
 		return
+	
+	for datum in data.gui_menus:
+		gui.add_menu(datum.menu_name, datum.path)
 	
 	add_child(gui)
 	
@@ -76,6 +82,9 @@ func _init(data: RunnerData) -> void:
 				
 				model = gltf.generate_scene(state)
 				GLTFDocument.unregister_gltf_document_extension(vrm_extension)
+			"png":
+				var png: Image
+				pass
 			_:
 				pass
 		
@@ -109,3 +118,24 @@ func _try_load(path: String) -> Node:
 # Public functions
 #-----------------------------------------------------------------------------#
 
+func add_feature(feature_name: StringName, object: Object) -> Error:
+	if features.has(feature_name):
+		return ERR_ALREADY_IN_USE
+	
+	features[feature_name] = object
+	if object is Node:
+		add_child(object)
+	
+	return OK
+
+func remove_feature(feature_name: StringName) -> Variant:
+	if not features.has(feature_name):
+		return null
+	
+	var feature: Variant = features[feature_name]
+	if feature is Node:
+		remove_child(feature)
+	
+	features.erase(feature_name)
+	
+	return feature

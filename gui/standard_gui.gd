@@ -1,9 +1,8 @@
 extends CanvasLayer
 
-@onready
-var _menu_items := %MenuItems
-
-var _grabber_grabbed := false
+var _menu_items := VBoxContainer.new()
+## Button name to popup instance.
+var _active_popups := {}
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
@@ -20,24 +19,24 @@ func _ready() -> void:
 		pass
 	)
 	
-	# TODO testing
-	var tracking_button := Button.new()
-	tracking_button.name = "Tracking"
-	tracking_button.text = "Tracking"
-	tracking_button.pressed.connect(func() -> void:
-		_popup(preload("res://gui/tracking.tscn"))
-	)
-	_menu_items.add_child(tracking_button)
+	$VBoxContainer/HSplitContainer.split_offset = DisplayServer.window_get_size(
+		DisplayServer.window_get_current_screen()).x * 0.15
+	
+	_menu_items.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	%MenuParent.add_child(_menu_items)
 
 #-----------------------------------------------------------------------------#
 # Private functions
 #-----------------------------------------------------------------------------#
 
-func _popup(ui: PackedScene) -> void:
+func _popup(button_name: String, ui: PackedScene) -> void:
+	if _active_popups.has(button_name):
+		_active_popups[button_name].move_to_foreground()
+		return
+	
 	var instance = ui.instantiate()
 	
 	var window := Window.new()
-#	window.current_screen = get_tree().root.current_screen
 	window.add_child(instance)
 	window.title = instance.name
 	
@@ -45,10 +44,22 @@ func _popup(ui: PackedScene) -> void:
 		window.queue_free()
 	)
 	
+	_active_popups[button_name] = window
+	
 	get_tree().root.add_child(window)
-	window.popup_centered()
+	window.popup_centered_ratio(0.5)
 
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
 
+func add_menu(button_name: String, button_resource_path: String) -> void:
+	var button := Button.new()
+	button.name = button_name
+	button.text = button_name
+	button.focus_mode = Control.FOCUS_NONE
+	button.pressed.connect(func() -> void:
+		_popup(button_name, load(button_resource_path))
+	)
+	
+	_menu_items.add_child(button)

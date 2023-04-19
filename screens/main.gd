@@ -19,6 +19,11 @@ func _init() -> void:
 	DisplayServer.window_set_current_screen(0)
 
 func _ready() -> void:
+	# We only need to cache this to avoid stuttering when loading a runner GUI for the first time
+	# Thus, we don't actually check to see if we actually loaded anything
+	if ResourceLoader.load_threaded_request("res://assets/main.theme", "Theme", true) != OK:
+		printerr("Unable to cache main gui theme")
+	
 	get_tree().change_scene_to_file("res://screens/runner_selection.tscn")
 
 #-----------------------------------------------------------------------------#

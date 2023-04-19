@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://v15tpu2kou6y"]
+
+[ext_resource type="Script" path="res://screens/runners/png_tuber_runner.gd" id="1_mlbuq"]
+
+[node name="PNGTuberRunner" type="Node2D"]
+script = ExtResource("1_mlbuq")

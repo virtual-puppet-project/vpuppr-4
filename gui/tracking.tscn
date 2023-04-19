@@ -1,28 +1,49 @@
-[gd_scene load_steps=2 format=3 uid="uid://dl544lnprn5vv"]
+[gd_scene load_steps=4 format=3 uid="uid://dl544lnprn5vv"]
 
 [ext_resource type="Script" path="res://gui/tracking.gd" id="1_mrrw3"]
+[ext_resource type="Theme" uid="uid://dbf0d25iqye5y" path="res://assets/main.theme" id="1_pwyoo"]
 
-[node name="Tracking" type="VBoxContainer"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cirty"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.113725, 0.133333, 0.160784, 1)
+
+[node name="Tracking" type="PanelContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_pwyoo")
+theme_override_styles/panel = SubResource("StyleBoxFlat_cirty")
 script = ExtResource("1_mrrw3")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "idk some running status or something"
+
+[node name="HFlowContainer" type="HFlowContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="StopAllTrackers" type="Button" parent="VBoxContainer/HFlowContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Stop All Trackers"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MeowFace" type="CheckButton" parent="ScrollContainer/VBoxContainer"]
+[node name="MeowFace" type="CheckButton" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "MeowFace"
