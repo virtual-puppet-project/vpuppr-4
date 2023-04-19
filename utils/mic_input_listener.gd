@@ -11,7 +11,7 @@ var _aec: AudioEffectCapture = null
 var _aesa: AudioEffectSpectrumAnalyzerInstance = null
 var _asp: AudioStreamPlayer = null
 
-var volume_threshold: float = 0.001
+var volume_threshold: float = 0.0005
 
 #-----------------------------------------------------------------------------#
 # Builtin functions

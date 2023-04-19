@@ -41,6 +41,7 @@ func _popup(button_name: String, ui: PackedScene) -> void:
 	window.title = instance.name
 	
 	window.close_requested.connect(func() -> void:
+		_active_popups.erase(button_name)
 		window.queue_free()
 	)
 	

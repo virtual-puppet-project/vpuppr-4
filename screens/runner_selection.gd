@@ -195,7 +195,8 @@ func _ready() -> void:
 				png.name = "PNGTuber"
 				png.runner_path = "res://screens/runners/png_tuber_runner.tscn"
 				png.gui_path = "res://gui/standard_gui.tscn"
-				png.model_path
+				# TODO this should be reading from a resource file
+				png.model_path = "res://assets/VpupprDuck.png"
 				png.preview_path = "C:/Users/theaz/Pictures/astro.png"
 				png.gui_menus = [
 					GuiMenu.new("Tracking", "res://gui/tracking.tscn"),

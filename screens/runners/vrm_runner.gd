@@ -10,7 +10,7 @@ extends Node3D
 var _logger := Logger.emplace("Runner3D")
 
 var _model_gimbal: Node3D = Node3D.new()
-var _model: Node3D = null
+var _model: Puppet3D = null
 
 var handler: RunnerHandler = null
 
@@ -34,7 +34,7 @@ func _physics_process(delta: float) -> void:
 #-----------------------------------------------------------------------------#
 
 ## Tries to set the model and add it to the SceneTree.
-func try_set_model(model: Node3D) -> int:
+func try_set_model(model: Puppet3D) -> int:
 	if _model != null:
 		_logger.error("Model already exists, please unset the model first")
 		return ERR_ALREADY_EXISTS

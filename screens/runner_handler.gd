@@ -83,8 +83,10 @@ func _init(data: RunnerData) -> void:
 				model = gltf.generate_scene(state)
 				GLTFDocument.unregister_gltf_document_extension(vrm_extension)
 			"png":
-				var png: Image
-				pass
+#				var png: Image
+				
+				# TODO testing
+				model = PngTuber.new()
 			_:
 				pass
 		
@@ -126,6 +128,8 @@ func add_feature(feature_name: StringName, object: Object) -> Error:
 	if object is Node:
 		add_child(object)
 	
+	runner.feature_toggled(feature_name, true)
+	
 	return OK
 
 func remove_feature(feature_name: StringName) -> Variant:
@@ -135,6 +139,8 @@ func remove_feature(feature_name: StringName) -> Variant:
 	var feature: Variant = features[feature_name]
 	if feature is Node:
 		remove_child(feature)
+	
+	runner.feature_toggled(feature_name, false)
 	
 	features.erase(feature_name)
 	
