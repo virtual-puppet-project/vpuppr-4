@@ -1,10 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://ciuo13pui3oi8"]
+[gd_scene load_steps=7 format=3 uid="uid://cvbgd8fsard4q"]
 
-[ext_resource type="Script" path="res://screens/runner_selection.gd" id="1_sr8va"]
-[ext_resource type="Texture2D" uid="uid://bs0te2rd3nh5i" path="res://assets/VpupprDucksBG.png" id="2_plyv3"]
-[ext_resource type="Texture2D" uid="uid://ds1og3djgjawf" path="res://assets/VpupprDuck.png" id="3_ec3eh"]
-[ext_resource type="Texture2D" uid="uid://b6q6bda27jgek" path="res://assets/VpupprLogo.png" id="4_smwor"]
-[ext_resource type="Texture2D" uid="uid://c12ilbj836168" path="res://assets/VpupprSubLogo.png" id="5_x2urm"]
+[ext_resource type="Script" path="res://screens/runner-selection/runner_selection.gd" id="1_hu0ir"]
+[ext_resource type="Texture2D" uid="uid://bs0te2rd3nh5i" path="res://assets/VpupprDucksBG.png" id="2_k12s5"]
+[ext_resource type="Texture2D" uid="uid://ds1og3djgjawf" path="res://assets/VpupprDuck.png" id="3_i0p7d"]
+[ext_resource type="Texture2D" uid="uid://b6q6bda27jgek" path="res://assets/VpupprLogo.png" id="4_07hvr"]
+[ext_resource type="Texture2D" uid="uid://c12ilbj836168" path="res://assets/VpupprSubLogo.png" id="5_rm36l"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0xjd"]
 content_margin_left = 5.0
@@ -18,7 +18,7 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [node name="RunnerSelection" type="CanvasLayer"]
-script = ExtResource("1_sr8va")
+script = ExtResource("1_hu0ir")
 
 [node name="Background" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -49,7 +49,7 @@ offset_bottom = 1172.0
 scale = Vector2(0.75, 0.75)
 pivot_offset = Vector2(1747.5, 1172)
 mouse_filter = 2
-texture = ExtResource("2_plyv3")
+texture = ExtResource("2_k12s5")
 
 [node name="DuckAnchor" type="Control" parent="."]
 layout_mode = 3
@@ -70,7 +70,7 @@ offset_bottom = 420.0
 scale = Vector2(0.6, 0.6)
 pivot_offset = Vector2(294.5, 420)
 mouse_filter = 2
-texture = ExtResource("3_ec3eh")
+texture = ExtResource("3_i0p7d")
 
 [node name="LogoAnchor" type="Control" parent="."]
 unique_name_in_owner = true
@@ -93,7 +93,7 @@ offset_bottom = 115.0
 scale = Vector2(0.5, 0.5)
 pivot_offset = Vector2(492.5, 115)
 mouse_filter = 2
-texture = ExtResource("4_smwor")
+texture = ExtResource("4_07hvr")
 
 [node name="SubLogoAnchor" type="Control" parent="."]
 unique_name_in_owner = true
@@ -114,7 +114,7 @@ offset_bottom = 27.5
 scale = Vector2(0.5, 0.5)
 pivot_offset = Vector2(492.5, 27.5)
 mouse_filter = 2
-texture = ExtResource("5_x2urm")
+texture = ExtResource("5_rm36l")
 
 [node name="RunnerContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true

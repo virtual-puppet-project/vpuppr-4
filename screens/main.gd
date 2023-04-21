@@ -24,7 +24,7 @@ func _ready() -> void:
 	if ResourceLoader.load_threaded_request("res://assets/main.theme", "Theme", true) != OK:
 		printerr("Unable to cache main gui theme")
 	
-	get_tree().change_scene_to_file("res://screens/runner_selection.tscn")
+	get_tree().change_scene_to_file("res://screens/runner-selection/runner_selection.tscn")
 
 #-----------------------------------------------------------------------------#
 # Private functions

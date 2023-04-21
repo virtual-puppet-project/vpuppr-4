@@ -1,5 +1,24 @@
 extends CanvasLayer
 
+## Sentinel for setting up top bar menu buttons.
+const SEPARATOR := ""
+const AppOptions := {
+	MainMenu = "Main Menu",
+	Settings = "Settings",
+	Logs = "Logs",
+	Quit = "Quit"
+}
+const DebugOptions := {
+	DebugConsole = "Debug Console"
+}
+const HelpOptions := {
+	InAppHelp = "In-app Help",
+	About = "About",
+	GitHub = "GitHub",
+	Discord = "Discord",
+	Licenses = "Licenses"
+}
+
 var _menu_items := VBoxContainer.new()
 ## Button name to popup instance.
 var _active_popups := {}
@@ -9,14 +28,75 @@ var _active_popups := {}
 #-----------------------------------------------------------------------------#
 
 func _ready() -> void:
-	%App.pressed.connect(func() -> void:
-		pass
+	var setup_popups := func(popup: PopupMenu, items: PackedStringArray, callback: Callable) -> void:
+		for i in items:
+			if not i.is_empty():
+				popup.add_item(i)
+			else:
+				popup.add_separator()
+		
+		popup.index_pressed.connect(callback)
+	
+	var popup: PopupMenu = %App.get_popup()
+	setup_popups.call(
+		popup,
+		[
+			AppOptions.MainMenu,
+			SEPARATOR,
+			AppOptions.Settings,
+			AppOptions.Logs,
+			SEPARATOR,
+			AppOptions.Quit
+		],
+		func(idx: int) -> void:
+			match popup.get_item_text(idx):
+				AppOptions.MainMenu:
+					# TODO add way to skip fade in transition
+					get_tree().change_scene_to_file("res://screens/runner-selection/runner_selection.tscn")
+				AppOptions.Settings:
+					pass
+				AppOptions.Logs:
+					pass
+				AppOptions.Quit:
+					get_tree().quit()
 	)
-	%Debug.pressed.connect(func() -> void:
-		pass
+	
+	popup = %Debug.get_popup()
+	setup_popups.call(
+		popup,
+		[
+			DebugOptions.DebugConsole
+		],
+		func(idx: int) -> void:
+			match popup.get_item_text(idx):
+				DebugOptions.DebugConsole:
+					pass
 	)
-	%Help.pressed.connect(func() -> void:
-		pass
+	
+	popup = %Help.get_popup()
+	setup_popups.call(
+		popup,
+		[
+			HelpOptions.InAppHelp,
+			HelpOptions.About,
+			SEPARATOR,
+			HelpOptions.GitHub,
+			HelpOptions.Discord,
+			SEPARATOR,
+			HelpOptions.Licenses
+		],
+		func(idx: int) -> void:
+			match popup.get_item_text(idx):
+				HelpOptions.InAppHelp:
+					pass
+				HelpOptions.About:
+					pass
+				HelpOptions.GitHub:
+					pass
+				HelpOptions.Discord:
+					pass
+				HelpOptions.Licenses:
+					pass
 	)
 	
 	$VBoxContainer/HSplitContainer.split_offset = DisplayServer.window_get_size(

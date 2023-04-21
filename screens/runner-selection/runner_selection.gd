@@ -246,7 +246,9 @@ func _ready() -> void:
 				# TODO (Tim Yuen) weird hack to force the fade effect to continue when the
 				# current_scene has changed
 				remove_child(_fade)
-				st.root.add_child(_fade)
+				var canvas_layer := CanvasLayer.new()
+				canvas_layer.add_child(_fade)
+				st.root.add_child(canvas_layer)
 				
 				self.visible = false
 				
@@ -255,7 +257,7 @@ func _ready() -> void:
 				
 				await tween.finished
 				
-				_fade.queue_free()
+				canvas_layer.queue_free()
 				
 				self.queue_free()
 			)

@@ -31,12 +31,6 @@ func _ready() -> void:
 				_logger.error("Unable to enable mic input")
 				
 				return
-			
-#			runner.get_model()
-			# TODO testing
-			runner.features[FEATURE_NAME].threshold_reached.connect(func(reached: bool) -> void:
-				print(reached)
-			)
 		else:
 			var obj: Node = runner.remove_feature(FEATURE_NAME)
 			obj.queue_free()

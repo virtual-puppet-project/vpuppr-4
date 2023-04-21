@@ -1,9 +1,6 @@
 class_name PngTuberRunner
 extends Node2D
 
-const DIM_COLOR := Color(1.0, 1.0, 1.0, 0.5)
-const DEFAULT_COLOR := Color.WHITE
-
 var _logger := Logger.emplace("PngTuberRunner")
 
 var handler: RunnerHandler = null
@@ -44,15 +41,11 @@ func feature_toggled(feature_name: String, enabled: bool) -> void:
 	match feature_name:
 		MicInput.FEATURE_NAME:
 			if enabled:
-				feature.threshold_reached.connect(func(reached: bool) -> void:
-					# TODO testing
-					if reached:
-						_model.modulate = DEFAULT_COLOR
-						_model.global_position.y = -20.0
-					else:
-						_model.modulate = DIM_COLOR
-						_model.global_position.y = 0.0
-				)
+				feature.threshold_reached.connect(feature.handle.bind(_model))
+			else:
+				feature.threshold_reached.disconnect(feature.handle)
+				# Reset the model
+				feature.handle(true, _model)
 		_:
-			pass
-	pass
+			_logger.error("Unhandled feature %s %s" % [
+				feature_name, "enabled" if enabled else "disabled"])

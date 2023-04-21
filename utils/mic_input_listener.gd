@@ -7,6 +7,9 @@ const ASP_NAME := "MicInputNode"
 const BUS_NAME: StringName = "Record"
 const BUFFER_SIZE: int = 1024
 
+const DIM_COLOR := Color(1.0, 1.0, 1.0, 0.5)
+const DEFAULT_COLOR := Color.WHITE
+
 var _aec: AudioEffectCapture = null
 var _aesa: AudioEffectSpectrumAnalyzerInstance = null
 var _asp: AudioStreamPlayer = null
@@ -55,6 +58,7 @@ func _setup_audio_resources() -> void:
 	_asp = runner_handler.get_node_or_null(ASP_NAME)
 	if _asp == null:
 		_asp = AudioStreamPlayer.new()
+		_asp.name = ASP_NAME
 		_asp.bus = BUS_NAME
 		_asp.stream = AudioStreamMicrophone.new()
 		
@@ -64,3 +68,10 @@ func _setup_audio_resources() -> void:
 # Public functions
 #-----------------------------------------------------------------------------#
 
+func handle(reached: bool, model: PngTuber) -> void:
+	if reached:
+		model.modulate = DEFAULT_COLOR
+		model.global_position.y = -20.0
+	else:
+		model.modulate = DIM_COLOR
+		model.global_position.y = 0.0
