@@ -32,6 +32,9 @@ var _logo: TextureRect = %Logo
 @onready
 var _sub_logo: TextureRect = %SubLogo
 @onready
+var _loading_spinner: CanvasLayer = %LoadingSpinner
+
+@onready
 var _parallax_elements: Array[TextureRect] = [
 	_ducks_background,
 	_duck,
@@ -199,6 +202,7 @@ func _ready() -> void:
 				png.model_path = "res://assets/VpupprDuck.png"
 				png.preview_path = "C:/Users/theaz/Pictures/astro.png"
 				png.gui_menus = [
+					GuiMenu.new("PNG Tuber", "res://gui/2d/png-tuber-config/png_tuber_config.tscn"),
 					GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
 					GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
 				]
@@ -226,11 +230,14 @@ func _ready() -> void:
 		).call():
 			var item := RunnerItem.instantiate()
 			item.clicked.connect(func() -> void:
+				_loading_spinner.start()
 				var handler: RunnerHandler = await RunnerHandler.new(data)
+				await handler.finished_loading
+				_loading_spinner.stop()
 				if handler.get_child_count() < 1:
 					_logger.error(
 						"An error occurred while loading the runner, declining to start handler")
-					handler.free()
+					handler.queue_free()
 					return
 				
 				var st := get_tree()

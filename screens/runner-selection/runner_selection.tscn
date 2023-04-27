@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://cvbgd8fsard4q"]
+[gd_scene load_steps=8 format=3 uid="uid://cvbgd8fsard4q"]
 
 [ext_resource type="Script" path="res://screens/runner-selection/runner_selection.gd" id="1_hu0ir"]
 [ext_resource type="Texture2D" uid="uid://bs0te2rd3nh5i" path="res://assets/VpupprDucksBG.png" id="2_k12s5"]
 [ext_resource type="Texture2D" uid="uid://ds1og3djgjawf" path="res://assets/VpupprDuck.png" id="3_i0p7d"]
 [ext_resource type="Texture2D" uid="uid://b6q6bda27jgek" path="res://assets/VpupprLogo.png" id="4_07hvr"]
 [ext_resource type="Texture2D" uid="uid://c12ilbj836168" path="res://assets/VpupprSubLogo.png" id="5_rm36l"]
+[ext_resource type="PackedScene" uid="uid://cbfg7462ppevh" path="res://screens/runner-selection/loading_spinner.tscn" id="6_3qoxt"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r0xjd"]
 content_margin_left = 5.0
@@ -195,3 +196,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 color = Color(0, 0, 0, 1)
+
+[node name="LoadingSpinner" parent="." instance=ExtResource("6_3qoxt")]
+unique_name_in_owner = true

@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3 uid="uid://v3ygokweqe4v"]
+
+[ext_resource type="Script" path="res://gui/2d/png-tuber-config/png_tuber_config.gd" id="1_suis0"]
+[ext_resource type="Theme" uid="uid://dbf0d25iqye5y" path="res://assets/main.theme" id="2_7hvo5"]
+
+[node name="PngTuberConfig" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_suis0")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
+layout_mode = 2
+theme = ExtResource("2_7hvo5")
+split_offset = 210
+
+[node name="Tree" type="Tree" parent="HSplitContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+hide_root = true
+
+[node name="PanelContainer" type="PanelContainer" parent="HSplitContainer"]
+layout_mode = 2
+
+[node name="ViewContainer" type="ScrollContainer" parent="HSplitContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="ViewContainer" type="VBoxContainer" parent="HSplitContainer/PanelContainer/ViewContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

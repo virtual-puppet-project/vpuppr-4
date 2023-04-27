@@ -1,0 +1,64 @@
+[gd_scene load_steps=3 format=3 uid="uid://cq8mrmb8vqbjs"]
+
+[ext_resource type="PackedScene" uid="uid://gcu0pbijfhe0" path="res://gui/2d/png-tuber-config/state_item.tscn" id="1_gys2y"]
+[ext_resource type="Script" path="res://gui/2d/png-tuber-config/state.gd" id="1_k8wj6"]
+
+[node name="State" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_k8wj6")
+
+[node name="StateName" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Placeholder"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Default" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Default"
+
+[node name="MouthOpen" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Mouth"
+
+[node name="Blink" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Blink"
+
+[node name="Joy" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Joy"
+
+[node name="Angry" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Angry"
+
+[node name="Sorrow" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Sorrow"
+
+[node name="Fun" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
+unique_name_in_owner = true
+layout_mode = 2
+item_name = "Fun"

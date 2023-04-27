@@ -1,24 +1,16 @@
-class_name Puppet3D
-extends Node3D
+extends CanvasLayer
 
-var _logger := Logger.emplace("Puppet3D")
-
-var context: RunnerHandler = null
-
-var _skeleton: Skeleton3D = null
-var _head_bone: int = -1
+@onready
+var _node_3d := %Node3D
+@onready
+var _camera := %Camera3D
+@onready
+var _anim_player := %AnimationPlayer
+const SPIN_ANIM := "clockwise_spin"
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
-
-func _ready() -> void:
-	_skeleton = find_child("Skeleton3D")
-	if _skeleton == null:
-		_logger.error("No skeleton found")
-		return
-	
-	_head_bone = _skeleton.find_bone("head")
 
 #-----------------------------------------------------------------------------#
 # Private functions
@@ -27,3 +19,17 @@ func _ready() -> void:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+func start() -> void:
+	show()
+	_node_3d.show()
+	
+	_camera.current = true
+	_anim_player.play(SPIN_ANIM)
+
+func stop() -> void:
+	hide()
+	_node_3d.hide()
+	
+	_camera.current = false
+	_anim_player.stop()

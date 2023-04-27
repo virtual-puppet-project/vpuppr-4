@@ -1,24 +1,17 @@
-class_name Puppet3D
-extends Node3D
+class_name MicInputConfig
+extends Resource
 
-var _logger := Logger.emplace("Puppet3D")
-
-var context: RunnerHandler = null
-
-var _skeleton: Skeleton3D = null
-var _head_bone: int = -1
+@export
+var start_enabled := false
+@export
+var threshold: float = 0.0005
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
-func _ready() -> void:
-	_skeleton = find_child("Skeleton3D")
-	if _skeleton == null:
-		_logger.error("No skeleton found")
-		return
-	
-	_head_bone = _skeleton.find_bone("head")
+func _init() -> void:
+	pass
 
 #-----------------------------------------------------------------------------#
 # Private functions

@@ -1,22 +1,28 @@
-class_name PngTuber
-extends Node2D
+extends VBoxContainer
 
-## PngTuber state -> [Sprite]
-var _sprites := {}
+var state_name := "Placeholder"
+
+@onready
+var default := %Default
+@onready
+var mouth_open := %MouthOpen
+@onready
+var blink := %Blink
+@onready
+var joy := %Joy
+@onready
+var angry := %Angry
+@onready
+var sorrow := %Sorrow
+@onready
+var fun := %Fun
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
-func _init() -> void:
-	# TODO testing
-	for i in ["res://assets/VpupprDuck.png"]:
-		var sprite := Sprite2D.new()
-		
-		var image := Image.load_from_file(i)
-		sprite.texture = ImageTexture.create_from_image(image)
-		
-		add_child(sprite)
+func _ready() -> void:
+	%StateName.text = state_name
 
 #-----------------------------------------------------------------------------#
 # Private functions
@@ -25,3 +31,7 @@ func _init() -> void:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+func save(config: PngTuberConfig.FaceState) -> void:
+	for i in ["default", "mouth_open", "blink", "joy", "angry", "sorrow", "fun"]:
+		config.set(i, get(i).get_item_path())

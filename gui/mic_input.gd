@@ -10,6 +10,8 @@ var _logger := Logger.emplace("MicInputGui")
 #-----------------------------------------------------------------------------#
 
 func _ready() -> void:
+	var runner := AM.get_runner()
+	
 	var input_device := %InputDevice
 	for i in AudioServer.get_input_device_list():
 		input_device.add_item(i)
@@ -20,8 +22,9 @@ func _ready() -> void:
 		# TODO pull from config
 		input_device.select(0)
 	
-	%Enabled.toggled.connect(func(enabled: bool) -> void:
-		var runner := AM.get_runner()
+	var enabled_button := %Enabled
+	enabled_button.button_pressed = runner.features.has(FEATURE_NAME)
+	enabled_button.toggled.connect(func(enabled: bool) -> void:
 		if enabled:
 			var err := runner.add_feature(
 				FEATURE_NAME, preload("res://utils/mic_input_listener.gd").new())

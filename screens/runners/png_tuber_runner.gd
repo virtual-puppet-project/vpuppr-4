@@ -3,7 +3,7 @@ extends Node2D
 
 var _logger := Logger.emplace("PngTuberRunner")
 
-var handler: RunnerHandler = null
+var context: RunnerHandler = null
 
 var _model: PngTuber = null
 
@@ -37,7 +37,7 @@ func try_set_model(model: PngTuber) -> int:
 	return OK
 
 func feature_toggled(feature_name: String, enabled: bool) -> void:
-	var feature: Variant = handler.features[feature_name]
+	var feature: Variant = context.features[feature_name]
 	match feature_name:
 		MicInput.FEATURE_NAME:
 			if enabled:

@@ -3,21 +3,23 @@ extends CanvasLayer
 ## Sentinel for setting up top bar menu buttons.
 const SEPARATOR := ""
 const AppOptions := {
-	MainMenu = "Main Menu",
-	Settings = "Settings",
-	Logs = "Logs",
-	Quit = "Quit"
+	MAIN_MENU = "Main Menu",
+	SETTINGS = "Settings",
+	LOGS = "Logs",
+	QUIT = "Quit"
 }
 const DebugOptions := {
-	DebugConsole = "Debug Console"
+	DEBUG_CONSOLE = "Debug Console"
 }
 const HelpOptions := {
-	InAppHelp = "In-app Help",
-	About = "About",
-	GitHub = "GitHub",
-	Discord = "Discord",
-	Licenses = "Licenses"
+	IN_APP_HELP = "In-app Help",
+	ABOUT = "About",
+	GITHUB = "GitHub",
+	DISCORD = "Discord",
+	LICENSES = "Licenses"
 }
+
+var context: RunnerHandler = null
 
 var _menu_items := VBoxContainer.new()
 ## Button name to popup instance.
@@ -41,23 +43,23 @@ func _ready() -> void:
 	setup_popups.call(
 		popup,
 		[
-			AppOptions.MainMenu,
+			AppOptions.MAIN_MENU,
 			SEPARATOR,
-			AppOptions.Settings,
-			AppOptions.Logs,
+			AppOptions.SETTINGS,
+			AppOptions.LOGS,
 			SEPARATOR,
-			AppOptions.Quit
+			AppOptions.QUIT
 		],
 		func(idx: int) -> void:
 			match popup.get_item_text(idx):
-				AppOptions.MainMenu:
+				AppOptions.MAIN_MENU:
 					# TODO add way to skip fade in transition
 					get_tree().change_scene_to_file("res://screens/runner-selection/runner_selection.tscn")
-				AppOptions.Settings:
+				AppOptions.SETTINGS:
 					pass
-				AppOptions.Logs:
+				AppOptions.LOGS:
 					pass
-				AppOptions.Quit:
+				AppOptions.QUIT:
 					get_tree().quit()
 	)
 	
@@ -65,11 +67,11 @@ func _ready() -> void:
 	setup_popups.call(
 		popup,
 		[
-			DebugOptions.DebugConsole
+			DebugOptions.DEBUG_CONSOLE
 		],
 		func(idx: int) -> void:
 			match popup.get_item_text(idx):
-				DebugOptions.DebugConsole:
+				DebugOptions.DEBUG_CONSOLE:
 					pass
 	)
 	
@@ -77,25 +79,25 @@ func _ready() -> void:
 	setup_popups.call(
 		popup,
 		[
-			HelpOptions.InAppHelp,
-			HelpOptions.About,
+			HelpOptions.IN_APP_HELP,
+			HelpOptions.ABOUT,
 			SEPARATOR,
-			HelpOptions.GitHub,
-			HelpOptions.Discord,
+			HelpOptions.GITHUB,
+			HelpOptions.DISCORD,
 			SEPARATOR,
-			HelpOptions.Licenses
+			HelpOptions.LICENSES
 		],
 		func(idx: int) -> void:
 			match popup.get_item_text(idx):
-				HelpOptions.InAppHelp:
+				HelpOptions.IN_APP_HELP:
 					pass
-				HelpOptions.About:
+				HelpOptions.ABOUT:
 					pass
-				HelpOptions.GitHub:
+				HelpOptions.GITHUB:
 					pass
-				HelpOptions.Discord:
+				HelpOptions.DISCORD:
 					pass
-				HelpOptions.Licenses:
+				HelpOptions.LICENSES:
 					pass
 	)
 	

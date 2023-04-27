@@ -1,24 +1,24 @@
-class_name Puppet3D
-extends Node3D
-
-var _logger := Logger.emplace("Puppet3D")
+class_name PngTuber
+extends Node2D
 
 var context: RunnerHandler = null
 
-var _skeleton: Skeleton3D = null
-var _head_bone: int = -1
+## PngTuber state -> [Sprite]
+var _sprites := {}
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
-func _ready() -> void:
-	_skeleton = find_child("Skeleton3D")
-	if _skeleton == null:
-		_logger.error("No skeleton found")
-		return
-	
-	_head_bone = _skeleton.find_bone("head")
+func _init() -> void:
+	# TODO testing
+	for i in ["res://assets/VpupprDuck.png"]:
+		var sprite := Sprite2D.new()
+		
+		var image := Image.load_from_file(i)
+		sprite.texture = ImageTexture.create_from_image(image)
+		
+		add_child(sprite)
 
 #-----------------------------------------------------------------------------#
 # Private functions

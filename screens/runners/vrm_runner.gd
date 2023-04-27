@@ -12,7 +12,7 @@ var _logger := Logger.emplace("Runner3D")
 var _model_gimbal: Node3D = Node3D.new()
 var _model: Puppet3D = null
 
-var handler: RunnerHandler = null
+var context: RunnerHandler = null
 
 #-----------------------------------------------------------------------------#
 # Builtin functions

@@ -1,14 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://mvlubgbw7fgu"]
+[gd_scene load_steps=3 format=3 uid="uid://mvlubgbw7fgu"]
 
 [ext_resource type="Theme" uid="uid://dbf0d25iqye5y" path="res://assets/main.theme" id="1_81add"]
 [ext_resource type="Script" path="res://gui/mic_input.gd" id="2_3ynpl"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cirty"]
-content_margin_left = 5.0
-content_margin_top = 5.0
-content_margin_right = 5.0
-content_margin_bottom = 5.0
-bg_color = Color(0.113725, 0.133333, 0.160784, 1)
 
 [node name="MicInput" type="PanelContainer"]
 anchors_preset = 15
@@ -17,7 +10,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_81add")
-theme_override_styles/panel = SubResource("StyleBoxFlat_cirty")
 script = ExtResource("2_3ynpl")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
