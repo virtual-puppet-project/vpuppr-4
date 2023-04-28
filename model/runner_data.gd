@@ -7,6 +7,8 @@ var name := ""
 var runner_path := ""
 @export
 var gui_path := ""
+@export
+var config: Resource = null
 # TODO change to typed array once those are stabilized
 @export
 var gui_menus := []

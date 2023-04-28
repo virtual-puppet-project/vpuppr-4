@@ -198,6 +198,7 @@ func _ready() -> void:
 				png.name = "PNGTuber"
 				png.runner_path = "res://screens/runners/png_tuber_runner.tscn"
 				png.gui_path = "res://gui/standard_gui.tscn"
+				png.config = PngTuberConfig.new()
 				# TODO this should be reading from a resource file
 				png.model_path = "res://assets/VpupprDuck.png"
 				png.preview_path = "C:/Users/theaz/Pictures/astro.png"
@@ -231,7 +232,7 @@ func _ready() -> void:
 			var item := RunnerItem.instantiate()
 			item.clicked.connect(func() -> void:
 				_loading_spinner.start()
-				var handler: RunnerHandler = await RunnerHandler.new(data)
+				var handler: RunnerContext = await RunnerContext.new(data)
 				await handler.finished_loading
 				_loading_spinner.stop()
 				if handler.get_child_count() < 1:

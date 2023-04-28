@@ -1,7 +1,7 @@
 class_name PngTuber
 extends Node2D
 
-var context: RunnerHandler = null
+var context: RunnerContext = null
 
 ## PngTuber state -> [Sprite]
 var _sprites := {}

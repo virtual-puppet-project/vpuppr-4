@@ -3,7 +3,7 @@ extends Node3D
 
 var _logger := Logger.emplace("Puppet3D")
 
-var context: RunnerHandler = null
+var context: RunnerContext = null
 
 var _skeleton: Skeleton3D = null
 var _head_bone: int = -1

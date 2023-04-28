@@ -46,3 +46,10 @@ func _ready() -> void:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+func save(config) -> void:
+	# TODO stub
+	pass
+
+func context_needed() -> PackedStringArray:
+	return [RunnerContext.Context.CONFIG]

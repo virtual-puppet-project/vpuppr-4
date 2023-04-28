@@ -1,18 +1,24 @@
-class_name RunnerHandler
+class_name RunnerContext
 extends Node
 
 signal finished_loading()
 
 ## Handler for all runners. Provides utility functions useful for all runners.
 
-const CONTEXT := "context"
+const Context := {
+	CONTEXT = "context",
+	
+	CONFIG = "config",
+	GUI = "gui",
+	RUNNER = "runner"
+}
 
-## The logger for the RunnerHandler.
-var _logger := Logger.emplace("RunnerHandler")
+## The logger for the RunnerContext.
+var _logger := Logger.emplace("RunnerContext")
 
-var runner: Node = null
-var gui: Node = null
 var config: Resource = null
+var gui: Node = null
+var runner: Node = null
 
 ## Various features available in the runner. Features can be added or removed.
 var features := {}
@@ -30,6 +36,8 @@ func _init(data: RunnerData) -> void:
 	if data == null:
 		fail_alert.call("No runner data received, bailing out!")
 		return
+	
+	config = data.config
 	
 	# TODO godot 4 is a fucking trash fire and this causes a data race somehow
 	var loading_thread := Thread.new()
@@ -141,10 +149,10 @@ func _try_load(path: String) -> Variant:
 	return resource.new() if resource is GDScript else resource.instantiate()
 
 func _set_context(obj: Object) -> int:
-	obj.set(CONTEXT, self)
+	obj.set(Context.CONTEXT, self)
 	
 	# This is a bit backwards but `set` will do nothing if the property does not exist.
-	if obj.get(CONTEXT) == null:
+	if obj.get(Context.CONTEXT) == null:
 		return ERR_DOES_NOT_EXIST
 	
 	return OK

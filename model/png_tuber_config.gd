@@ -31,7 +31,7 @@ class FaceState extends Resource:
 	var fun := ""
 
 @export
-var default := FaceState.new()
+var forward := FaceState.new()
 @export
 var left := FaceState.new()
 @export

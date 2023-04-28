@@ -12,6 +12,8 @@ const Menus := {
 	CUSTOM = "Custom"
 }
 
+var config: PngTuberConfig = null
+
 var _current_menu: Control = null
 ## State name to node.
 var _menus := {}
@@ -35,7 +37,10 @@ func _ready() -> void:
 		
 		var state := State.instantiate()
 		state.state_name = menu_name
-		# TODO init from config
+		
+		var face_state: PngTuberConfig.FaceState = config.get(menu_name.to_lower())
+		
+		
 		vc.add_child(state)
 		_menus[menu_name] = state
 		state.hide()
@@ -71,3 +76,6 @@ func _select_menu(menu_name: String) -> void:
 
 func save(config: PngTuberConfig) -> void:
 	pass
+
+func context_needed() -> PackedStringArray:
+	return [RunnerContext.Context.CONFIG]
