@@ -2,13 +2,12 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cjyj7lbhw5boa"
+uid="uid://cbxdpc83k4wv4"
 path.s3tc="res://.godot/imported/rubber-duck_duck_texture.png-9b832bd4de1a9479a6a2b64451219628.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
-generator_parameters={}
 
 [deps]
 
