@@ -51,7 +51,7 @@ func _ready() -> void:
 	_select_menu(Menus.FORWARD)
 	
 	tree.item_selected.connect(func() -> void:
-		_select_menu(tree.get_selected().get_text(TREE_COL))
+		_select_menu(tree.get_selected().get_text(TREE_COL).to_lower())
 	)
 
 func _exit_tree() -> void:

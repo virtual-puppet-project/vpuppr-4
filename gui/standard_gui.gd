@@ -134,6 +134,7 @@ func _popup(button_name: String, ui: PackedScene) -> void:
 	
 	window.close_requested.connect(func() -> void:
 		instance.save(context.config)
+		context.save()
 		
 		_active_popups.erase(button_name)
 		window.queue_free()

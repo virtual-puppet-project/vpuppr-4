@@ -140,6 +140,11 @@ layout_mode = 2
 [node name="HFlowContainer" type="HFlowContainer" parent="RunnerContainer/VBoxContainer"]
 layout_mode = 2
 
+[node name="NewRunner" type="Button" parent="RunnerContainer/VBoxContainer/HFlowContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "New"
+
 [node name="LoadModel" type="Button" parent="RunnerContainer/VBoxContainer/HFlowContainer"]
 unique_name_in_owner = true
 layout_mode = 2

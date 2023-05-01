@@ -16,6 +16,8 @@ const Context := {
 ## The logger for the RunnerContext.
 var _logger := Logger.emplace("RunnerContext")
 
+var runner_data: RunnerData = null
+var context: RunnerContext = self
 var config: Resource = null
 var gui: Node = null
 var runner: Node = null
@@ -37,6 +39,7 @@ func _init(data: RunnerData) -> void:
 		fail_alert.call("No runner data received, bailing out!")
 		return
 	
+	runner_data = data
 	config = data.config
 	
 	# TODO godot 4 is a fucking trash fire and this causes a data race somehow
@@ -139,6 +142,9 @@ func _init(data: RunnerData) -> void:
 	
 	finished_loading.emit()
 
+func _exit_tree() -> void:
+	save()
+
 #-----------------------------------------------------------------------------#
 # Private functions
 #-----------------------------------------------------------------------------#
@@ -163,6 +169,20 @@ func _set_context(obj: Object) -> int:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+static func get_current() -> RunnerContext:
+	var context: Variant = Engine.get_main_loop().current_scene
+	if not context is RunnerContext:
+		return null
+	
+	return context
+
+func save() -> Error:
+	return ResourceSaver.save(
+		runner_data,
+		"user://%s.tres" % runner_data.name,
+		ResourceSaver.FLAG_OMIT_EDITOR_PROPERTIES
+	)
 
 func add_feature(feature_name: StringName, object: Object) -> Error:
 	if features.has(feature_name):

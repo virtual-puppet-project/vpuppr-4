@@ -2,6 +2,7 @@ extends CanvasLayer
 
 const RunnerItem: PackedScene = preload("res://screens/runner-selection/runner_item.tscn")
 const Settings: PackedScene = preload("res://screens/settings.tscn")
+const NewRunner: PackedScene = preload("res://screens/runner-selection/new_runner.tscn")
 
 const LOGO_TWEEN_TIME: float = 1.5
 const START_RUNNER_TWEEN_TIME: float = 0.5
@@ -66,6 +67,13 @@ func _ready() -> void:
 	var handle_popup_hide := func(node: Node) -> void:
 		node.queue_free()
 	
+	%NewRunner.pressed.connect(func() -> void:
+		var popup := NewRunner.instantiate()
+		popup.confirmed
+		
+		add_child(popup)
+		popup.popup_centered_ratio()
+	)
 	%LoadModel.pressed.connect(func() -> void:
 		var popup := FileDialog.new()
 		popup.current_dir = "" # TODO pull from config
