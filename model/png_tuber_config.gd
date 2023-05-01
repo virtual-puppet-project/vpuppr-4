@@ -1,6 +1,8 @@
 class_name PngTuberConfig
 extends Resource
 
+const DEFAULT_IMAGE_PATH := "res://assets/VpupprDuck.png"
+
 enum States {
 	NONE,
 	DEFAULT,

@@ -3,18 +3,12 @@ extends PanelContainer
 const State := preload("res://gui/2d/png-tuber-config/state.tscn")
 
 const TREE_COL: int = 0
-const Menus := {
-	FORWARD = "Forward",
-	LEFT = "Left",
-	RIGHT = "Right",
-	UP = "Up",
-	DOWN = "Down",
-	CUSTOM = "Custom"
-}
+const Menus := PngTuber.States
 
 var config: PngTuberConfig = null
 
 var _current_menu: Control = null
+## Dictionary<String, Node> [br]
 ## State name to node.
 var _menus := {}
 
@@ -32,18 +26,22 @@ func _ready() -> void:
 		if menu_name == Menus.CUSTOM:
 			continue
 		
+		var menu_name_capitalized: String = menu_name.capitalize()
+		
 		var ti := tree.create_item(root)
-		ti.set_text(TREE_COL, menu_name)
+		ti.set_text(TREE_COL, menu_name_capitalized)
 		
 		var state := State.instantiate()
-		state.state_name = menu_name
-		
-		var face_state: PngTuberConfig.FaceState = config.get(menu_name.to_lower())
-		
+		state.state_name = menu_name_capitalized
 		
 		vc.add_child(state)
 		_menus[menu_name] = state
 		state.hide()
+		
+		var face_state: PngTuberConfig.FaceState = config.get(menu_name)
+		for expression in PngTuber.Expressions.values():
+			# TODO this is not great
+			state.get(expression).set_item_path(face_state.get(expression))
 		
 		if menu_name == Menus.FORWARD:
 			tree.set_selected(ti, TREE_COL)
@@ -75,7 +73,9 @@ func _select_menu(menu_name: String) -> void:
 #-----------------------------------------------------------------------------#
 
 func save(config: PngTuberConfig) -> void:
-	pass
+	for menu_name in _menus.keys():
+		var menu: Node = _menus[menu_name]
+		menu.save(config.get(menu_name))
 
 func context_needed() -> PackedStringArray:
 	return [RunnerContext.Context.CONFIG]

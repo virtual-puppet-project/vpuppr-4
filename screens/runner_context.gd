@@ -92,10 +92,13 @@ func _init(data: RunnerData) -> void:
 				r.model = gltf.generate_scene(state)
 				GLTFDocument.unregister_gltf_document_extension(vrm_extension)
 			"png":
-	#				var png: Image
-
+				if config.forward.default.is_empty():
+					config.forward.default = PngTuberConfig.DEFAULT_IMAGE_PATH
+				
+				r.model = PngTuber.new(config)
+				
 				# TODO testing
-				r.model = PngTuber.new()
+#				r.model = PngTuber.new()
 			_:
 				pass
 

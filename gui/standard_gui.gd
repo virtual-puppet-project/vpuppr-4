@@ -124,6 +124,7 @@ func _popup(button_name: String, ui: PackedScene) -> void:
 		instance.free()
 		return
 	
+	# TODO cache this somewhere?
 	for i in instance.call(GuiInterface.Methods.CONTEXT_NEEDED):
 		instance.set(i, context.get(i))
 	
@@ -132,6 +133,8 @@ func _popup(button_name: String, ui: PackedScene) -> void:
 	window.title = instance.name
 	
 	window.close_requested.connect(func() -> void:
+		instance.save(context.config)
+		
 		_active_popups.erase(button_name)
 		window.queue_free()
 	)

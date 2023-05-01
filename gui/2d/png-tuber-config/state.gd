@@ -33,5 +33,5 @@ func _ready() -> void:
 #-----------------------------------------------------------------------------#
 
 func save(config: PngTuberConfig.FaceState) -> void:
-	for i in ["default", "mouth_open", "blink", "joy", "angry", "sorrow", "fun"]:
+	for i in PngTuber.Expressions.values():
 		config.set(i, get(i).get_item_path())
