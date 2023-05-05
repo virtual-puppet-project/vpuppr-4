@@ -19,7 +19,9 @@ const HelpOptions := {
 	LICENSES = "Licenses"
 }
 
-var context: RunnerHandler = null
+var _logger := Logger.emplace("StandardGui")
+
+var context: RunnerContext = null
 
 var _menu_items := VBoxContainer.new()
 ## Button name to popup instance.
@@ -117,12 +119,23 @@ func _popup(button_name: String, ui: PackedScene) -> void:
 		return
 	
 	var instance = ui.instantiate()
+	if not GuiInterface.implements(instance):
+		_logger.error("%s does not implement GuiInterface" % button_name)
+		instance.free()
+		return
+	
+	# TODO cache this somewhere?
+	for i in instance.call(GuiInterface.Methods.CONTEXT_NEEDED):
+		instance.set(i, context.get(i))
 	
 	var window := Window.new()
 	window.add_child(instance)
 	window.title = instance.name
 	
 	window.close_requested.connect(func() -> void:
+		instance.save(context.config)
+		context.save()
+		
 		_active_popups.erase(button_name)
 		window.queue_free()
 	)

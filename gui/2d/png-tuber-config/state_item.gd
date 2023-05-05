@@ -29,5 +29,8 @@ func _ready() -> void:
 # Public functions
 #-----------------------------------------------------------------------------#
 
+func set_item_path(path: String) -> void:
+	item_path.text = path
+
 func get_item_path() -> String:
 	return item_path.text

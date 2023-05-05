@@ -3,7 +3,7 @@ extends Node2D
 
 var _logger := Logger.emplace("PngTuberRunner")
 
-var context: RunnerHandler = null
+var context: RunnerContext = null
 
 var _model: PngTuber = null
 

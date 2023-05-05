@@ -7,11 +7,12 @@ var name := ""
 var runner_path := ""
 @export
 var gui_path := ""
+@export
+var config: Resource = null
 # TODO change to typed array once those are stabilized
 @export
 var gui_menus := []
-@export
-var model_path := ""
+# TODO use reasonable default
 @export
 var preview_path := ""
 @export
@@ -28,7 +29,6 @@ func _to_string() -> String:
 		"name": name,
 		"runner_path": runner_path,
 		"gui_path": gui_path,
-		"model_path": model_path,
 		"favorite": favorite,
 		"last_used": last_used
 	}, "\t")

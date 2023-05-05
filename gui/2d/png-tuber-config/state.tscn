@@ -36,7 +36,7 @@ item_name = "Default"
 [node name="MouthOpen" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
 unique_name_in_owner = true
 layout_mode = 2
-item_name = "Mouth"
+item_name = "Mouth Open"
 
 [node name="Blink" parent="ScrollContainer/VBoxContainer" instance=ExtResource("1_gys2y")]
 unique_name_in_owner = true

@@ -1,18 +1,28 @@
-class_name RunnerHandler
+class_name RunnerContext
 extends Node
+
+# TODO this is not good, needs to be rewritten
 
 signal finished_loading()
 
 ## Handler for all runners. Provides utility functions useful for all runners.
 
-const CONTEXT := "context"
+const Context := {
+	CONTEXT = "context",
+	
+	CONFIG = "config",
+	GUI = "gui",
+	RUNNER = "runner"
+}
 
-## The logger for the RunnerHandler.
-var _logger := Logger.emplace("RunnerHandler")
+## The logger for the RunnerContext.
+var _logger := Logger.emplace("RunnerContext")
 
-var runner: Node = null
-var gui: Node = null
+var runner_data: RunnerData = null
+var context: RunnerContext = self
 var config: Resource = null
+var gui: Node = null
+var runner: Node = null
 
 ## Various features available in the runner. Features can be added or removed.
 var features := {}
@@ -30,6 +40,9 @@ func _init(data: RunnerData) -> void:
 	if data == null:
 		fail_alert.call("No runner data received, bailing out!")
 		return
+	
+	runner_data = data
+	config = data.config
 	
 	# TODO godot 4 is a fucking trash fire and this causes a data race somehow
 	var loading_thread := Thread.new()
@@ -51,45 +64,46 @@ func _init(data: RunnerData) -> void:
 		r.runner = try_load.call(data.runner_path)
 		r.gui = try_load.call(data.gui_path)
 
-		match data.model_path.get_extension().to_lower():
-			"tscn", "scn":
-				var resource: PackedScene = load(data.model_path)
-				if resource == null:
-					return r
+		if data.config is VrmConfig:
+			match data.model_path.get_extension().to_lower():
+				"tscn", "scn":
+					var resource: PackedScene = load(data.model_path)
+					if resource == null:
+						return r
+					
+					r.model = resource.instantiate()
+				"glb":
+					var gltf: GLTFDocument = GLTFDocument.new()
+					var state: GLTFState = GLTFState.new()
 
-				r.model = resource.instantiate()
-			"glb":
-				var gltf: GLTFDocument = GLTFDocument.new()
-				var state: GLTFState = GLTFState.new()
+					var err := gltf.append_from_file(data.model_path, state)
+					if err != OK:
+						return r
 
-				var err := gltf.append_from_file(data.model_path, state)
-				if err != OK:
-					return r
+					r.model = gltf.generate_scene(state)
+					r.model.name = data.model_path.get_file()
 
-				r.model = gltf.generate_scene(state)
-				r.model.name = data.model_path.get_file()
-
-				r.model.set_script(Puppet3D)
-			"vrm":
-				var gltf: GLTFDocument = GLTFDocument.new()
-				var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()
-				GLTFDocument.register_gltf_document_extension(vrm_extension)
-				var state: GLTFState = GLTFState.new()
-
-				var err := gltf.append_from_file(data.model_path, state)
-				if err != OK:
-					GLTFDocument.unregister_gltf_document_extension(vrm_extension)
-					return r
-
-				r.model = gltf.generate_scene(state)
-				GLTFDocument.unregister_gltf_document_extension(vrm_extension)
-			"png":
-	#				var png: Image
-
-				# TODO testing
-				r.model = PngTuber.new()
-			_:
-				pass
+					r.model.set_script(Puppet3D)
+#				"vrm":
+#					var gltf: GLTFDocument = GLTFDocument.new()
+#					var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()
+#					GLTFDocument.register_gltf_document_extension(vrm_extension)
+#					var state: GLTFState = GLTFState.new()
+#
+#					var err := gltf.append_from_file(data.model_path, state)
+#					if err != OK:
+#						GLTFDocument.unregister_gltf_document_extension(vrm_extension)
+#						return r
+#
+#					r.model = gltf.generate_scene(state)
+#					GLTFDocument.unregister_gltf_document_extension(vrm_extension)
+		elif data.config is PngTuberConfig:
+			if config.forward.default.is_empty():
+				config.forward.default = PngTuberConfig.DEFAULT_IMAGE_PATH
+			
+			r.model = PngTuber.new(config)
+		else:
+			_logger.error("Unhandled config: %s" % str(data.config))
 
 		return r
 	)
@@ -128,6 +142,9 @@ func _init(data: RunnerData) -> void:
 	
 	finished_loading.emit()
 
+func _exit_tree() -> void:
+	save()
+
 #-----------------------------------------------------------------------------#
 # Private functions
 #-----------------------------------------------------------------------------#
@@ -141,10 +158,10 @@ func _try_load(path: String) -> Variant:
 	return resource.new() if resource is GDScript else resource.instantiate()
 
 func _set_context(obj: Object) -> int:
-	obj.set(CONTEXT, self)
+	obj.set(Context.CONTEXT, self)
 	
 	# This is a bit backwards but `set` will do nothing if the property does not exist.
-	if obj.get(CONTEXT) == null:
+	if obj.get(Context.CONTEXT) == null:
 		return ERR_DOES_NOT_EXIST
 	
 	return OK
@@ -152,6 +169,20 @@ func _set_context(obj: Object) -> int:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+static func get_current() -> RunnerContext:
+	var context: Variant = Engine.get_main_loop().current_scene
+	if not context is RunnerContext:
+		return null
+	
+	return context
+
+func save() -> Error:
+	return ResourceSaver.save(
+		runner_data,
+		"user://%s.tres" % runner_data.name,
+		ResourceSaver.FLAG_OMIT_EDITOR_PROPERTIES
+	)
 
 func add_feature(feature_name: StringName, object: Object) -> Error:
 	if features.has(feature_name):

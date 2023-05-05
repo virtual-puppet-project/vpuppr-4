@@ -3,6 +3,9 @@ extends PanelContainer
 
 const FEATURE_NAME := "MicInput"
 
+var config: Resource = null
+var context: RunnerContext = null
+
 var _logger := Logger.emplace("MicInputGui")
 
 #-----------------------------------------------------------------------------#
@@ -10,8 +13,6 @@ var _logger := Logger.emplace("MicInputGui")
 #-----------------------------------------------------------------------------#
 
 func _ready() -> void:
-	var runner := AM.get_runner()
-	
 	var input_device := %InputDevice
 	for i in AudioServer.get_input_device_list():
 		input_device.add_item(i)
@@ -23,10 +24,10 @@ func _ready() -> void:
 		input_device.select(0)
 	
 	var enabled_button := %Enabled
-	enabled_button.button_pressed = runner.features.has(FEATURE_NAME)
+	enabled_button.button_pressed = context.features.has(FEATURE_NAME)
 	enabled_button.toggled.connect(func(enabled: bool) -> void:
 		if enabled:
-			var err := runner.add_feature(
+			var err := context.add_feature(
 				FEATURE_NAME, preload("res://utils/mic_input_listener.gd").new())
 			if err != OK:
 				if err != ERR_ALREADY_IN_USE:
@@ -35,7 +36,7 @@ func _ready() -> void:
 				
 				return
 		else:
-			var obj: Node = runner.remove_feature(FEATURE_NAME)
+			var obj: Node = context.remove_feature(FEATURE_NAME)
 			obj.queue_free()
 	)
 
@@ -46,3 +47,10 @@ func _ready() -> void:
 #-----------------------------------------------------------------------------#
 # Public functions
 #-----------------------------------------------------------------------------#
+
+func save(config) -> void:
+	# TODO stub
+	pass
+
+func context_needed() -> PackedStringArray:
+	return [RunnerContext.Context.CONFIG, RunnerContext.Context.CONTEXT]
