@@ -1,28 +1,12 @@
-extends VBoxContainer
-
-var state_name := "Placeholder"
-
-@onready
-var default := %Default
-@onready
-var mouth_open := %MouthOpen
-@onready
-var blink := %Blink
-@onready
-var joy := %Joy
-@onready
-var angry := %Angry
-@onready
-var sorrow := %Sorrow
-@onready
-var fun := %Fun
+class_name VrmConfig
+extends Resource
 
 #-----------------------------------------------------------------------------#
 # Builtin functions
 #-----------------------------------------------------------------------------#
 
-func _ready() -> void:
-	%StateName.text = state_name
+func _init() -> void:
+	pass
 
 #-----------------------------------------------------------------------------#
 # Private functions
@@ -32,6 +16,3 @@ func _ready() -> void:
 # Public functions
 #-----------------------------------------------------------------------------#
 
-func save(config: PngTuberFaceState) -> void:
-	for i in PngTuber.Expressions.values():
-		config.set(i, get(i).get_item_path())

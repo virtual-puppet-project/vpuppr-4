@@ -69,31 +69,36 @@ func _ready() -> void:
 	
 	%NewRunner.pressed.connect(func() -> void:
 		var popup := NewRunner.instantiate()
-		popup.confirmed
 		
 		add_child(popup)
 		popup.popup_centered_ratio()
+		
+		var config: RunnerData = await popup.close_requested
+		if config == null:
+			return
+		
+		_create_runner_item(config)
 	)
-	%LoadModel.pressed.connect(func() -> void:
-		var popup := FileDialog.new()
-		popup.current_dir = "" # TODO pull from config
-		popup.add_filter("*.glb", "GLB models")
-		popup.add_filter("*.vrm", "VRM models")
-		# TODO pull more supported formats from config?
-		popup.access = FileDialog.ACCESS_FILESYSTEM
-		popup.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-		
-		add_child(popup)
-		popup.popup_centered_ratio(0.5)
-		
-		var file_dialog_hide := handle_popup_hide.bind(popup)
-		popup.visibility_changed.connect(file_dialog_hide)
-		popup.close_requested.connect(file_dialog_hide)
-		
-		popup.file_selected.connect(func(path: String) -> void:
-			_logger.debug(path)
-		)
-	)
+#	%LoadModel.pressed.connect(func() -> void:
+#		var popup := FileDialog.new()
+#		popup.current_dir = "" # TODO pull from config
+#		popup.add_filter("*.glb", "GLB models")
+#		popup.add_filter("*.vrm", "VRM models")
+#		# TODO pull more supported formats from config?
+#		popup.access = FileDialog.ACCESS_FILESYSTEM
+#		popup.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+#
+#		add_child(popup)
+#		popup.popup_centered_ratio(0.5)
+#
+#		var file_dialog_hide := handle_popup_hide.bind(popup)
+#		popup.visibility_changed.connect(file_dialog_hide)
+#		popup.close_requested.connect(file_dialog_hide)
+#
+#		popup.file_selected.connect(func(path: String) -> void:
+#			_logger.debug(path)
+#		)
+#	)
 	%Settings.pressed.connect(func() -> void:
 		# Reuse the old settings popup
 		if _settings_popup != null:
@@ -186,108 +191,107 @@ func _ready() -> void:
 		for data in (func() -> Array:
 			var r := []
 			
-			for i in 2:
-				var d0 := RunnerData.new()
-				d0.name = "Test 0"
-				d0.runner_path = "res://screens/runners/vrm_runner.tscn"
-				d0.gui_path = "res://gui/standard_gui.tscn"
-				d0.model_path = "res://assets/3d-models/rubber-duck.glb"
-				d0.preview_path = "res://assets/VpupprDuck.png"
-				d0.last_used.day = 123
-				d0.favorite = true
-				d0.gui_menus = [
-					GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
-					GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
-				]
+			const USER_DATA_DIR := "user://"
+			
+			var dir := DirAccess.open(USER_DATA_DIR)
+			if dir == null:
+				_logger.error("Unable to access user directory to load configs")
+				return r
+			
+			dir.include_hidden = false
+			dir.include_navigational = false
+			
+			dir.list_dir_begin()
+			
+			var file_name := ""
+			while true:
+				file_name = dir.get_next()
 				
-				r.append(d0)
+				if file_name.is_empty():
+					break
 				
-				var png := RunnerData.new()
-				png.name = "PNGTuber"
-				png.runner_path = "res://screens/runners/png_tuber_runner.tscn"
-				png.gui_path = "res://gui/standard_gui.tscn"
-				png.config = PngTuberConfig.new()
-				# TODO this should be reading from a resource file
-				png.model_path = "res://assets/VpupprDuck.png"
-				png.preview_path = "C:/Users/theaz/Pictures/astro.png"
-				png.gui_menus = [
-					GuiMenu.new("PNG Tuber", "res://gui/2d/png-tuber-config/png_tuber_config.tscn"),
-					GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
-					GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
-				]
+				_logger.debug("Found file: %s" % file_name)
 				
-				r.append(png)
+				if dir.current_is_dir() or file_name.get_extension().to_lower() != "tres":
+					continue
 				
-				var d1 := RunnerData.new()
-				d1.name = "Some other data"
-				d1.runner_path = "res://screens/runners/vrm_runner.tscn"
-				d1.gui_path = "res://gui/standard_gui.tscn"
-				d1.model_path = "res://assets/3d-models/AliciaSolid_vrm-0.51.vrm"
-				d1.preview_path = "C:/Users/theaz/Pictures/astro.png"
+				var config = load("%s%s" % [USER_DATA_DIR, file_name])
+				if config == null or not config is RunnerData:
+					continue
 				
-				r.append(d1)
-				
-				var d2 := RunnerData.new()
-				d2.name = "Bad data"
-				d2.runner_path = ""
-				d2.gui_path = ""
-				d2.model_path = ""
-				
-				r.append(d2)
+				r.push_back(config)
+			
+			dir.list_dir_end()
+			
+#			var png := RunnerData.new()
+#			png.name = "PNGTuber"
+#			png.runner_path = "res://screens/runners/png_tuber_runner.tscn"
+#			png.gui_path = "res://gui/standard_gui.tscn"
+#			png.config = PngTuberConfig.new()
+#			# TODO this should be reading from a resource file
+#			png.preview_path = "C:/Users/theaz/Pictures/astro.png"
+#			png.gui_menus = [
+#				GuiMenu.new("PNG Tuber", "res://gui/2d/png-tuber-config/png_tuber_config.tscn"),
+#				GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
+#				GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
+#			]
+#
+#			r.push_back(png)
 			
 			return r
 		).call():
-			var item := RunnerItem.instantiate()
-			item.clicked.connect(func() -> void:
-				_loading_spinner.start()
-				var handler: RunnerContext = await RunnerContext.new(data)
-				await handler.finished_loading
-				_loading_spinner.stop()
-				if handler.get_child_count() < 1:
-					_logger.error(
-						"An error occurred while loading the runner, declining to start handler")
-					handler.queue_free()
-					return
-				
-				var st := get_tree()
-				
-				var tween := st.create_tween()
-				tween.tween_property(_fade, "color", Color.BLACK, START_RUNNER_TWEEN_TIME)
-				
-				await tween.finished
-				
-				st.root.add_child(handler)
-				st.current_scene = handler
-				
-				# TODO (Tim Yuen) weird hack to force the fade effect to continue when the
-				# current_scene has changed
-				remove_child(_fade)
-				var canvas_layer := CanvasLayer.new()
-				canvas_layer.add_child(_fade)
-				st.root.add_child(canvas_layer)
-				
-				self.visible = false
-				
-				tween = st.create_tween()
-				tween.tween_property(_fade, "color", CLEAR_COLOR, START_RUNNER_TWEEN_TIME)
-				
-				await tween.finished
-				
-				canvas_layer.queue_free()
-				
-				self.queue_free()
-			)
-			
-			_runners.add_child(item)
-			
-			item.init_favorite(data.favorite)
-			item.title.text = data.name
-			item.model.text = data.model_path.get_file()
-			item.last_used.text = data.last_used.to_string()
-			item.last_used_datetime = data.last_used
-			# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
-			# directly throws an error in a thread. An indirect error is fine though
-			item.init_preview(data.preview_path)
+			_create_runner_item(data)
+#			var item := RunnerItem.instantiate()
+#			item.clicked.connect(func() -> void:
+#				_loading_spinner.start()
+#				var handler: RunnerContext = await RunnerContext.new(data)
+#				await handler.finished_loading
+#				_loading_spinner.stop()
+#				if handler.get_child_count() < 1:
+#					_logger.error(
+#						"An error occurred while loading the runner, declining to start handler")
+#					handler.queue_free()
+#					return
+#
+#				var st := get_tree()
+#
+#				var tween := st.create_tween()
+#				tween.tween_property(_fade, "color", Color.BLACK, START_RUNNER_TWEEN_TIME)
+#
+#				await tween.finished
+#
+#				st.root.add_child(handler)
+#				st.current_scene = handler
+#
+#				# TODO (Tim Yuen) weird hack to force the fade effect to continue when the
+#				# current_scene has changed
+#				remove_child(_fade)
+#				var canvas_layer := CanvasLayer.new()
+#				canvas_layer.add_child(_fade)
+#				st.root.add_child(canvas_layer)
+#
+#				self.visible = false
+#
+#				tween = st.create_tween()
+#				tween.tween_property(_fade, "color", CLEAR_COLOR, START_RUNNER_TWEEN_TIME)
+#
+#				await tween.finished
+#
+#				canvas_layer.queue_free()
+#
+#				self.queue_free()
+#			)
+#
+#			_runners.add_child(item)
+#
+#			item.init_favorite(data.favorite)
+#			item.title.text = data.name
+#			item.model.text = data.model_path.get_file()
+#			item.last_used.text = data.last_used.to_string()
+#			item.last_used_datetime = data.last_used
+#			# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
+#			# directly throws an error in a thread. An indirect error is fine though
+#			item.init_preview(data.preview_path)
 	)
 	
 	_runner_container.hide()
@@ -397,6 +401,60 @@ func _adapt_screen_size() -> void:
 		i.position = -i.pivot_offset
 		
 		_parallax_initial_positions[i] = i.position
+
+func _create_runner_item(data: RunnerData) -> void:
+	var item := RunnerItem.instantiate()
+	item.clicked.connect(func() -> void:
+		_loading_spinner.start()
+		var handler: RunnerContext = await RunnerContext.new(data)
+		await handler.finished_loading
+		_loading_spinner.stop()
+		if handler.get_child_count() < 1:
+			_logger.error(
+				"An error occurred while loading the runner, declining to start handler")
+			handler.queue_free()
+			return
+		
+		var st := get_tree()
+		
+		var tween := st.create_tween()
+		tween.tween_property(_fade, "color", Color.BLACK, START_RUNNER_TWEEN_TIME)
+		
+		await tween.finished
+		
+		st.root.add_child(handler)
+		st.current_scene = handler
+		
+		# TODO (Tim Yuen) weird hack to force the fade effect to continue when the
+		# current_scene has changed
+		remove_child(_fade)
+		var canvas_layer := CanvasLayer.new()
+		canvas_layer.add_child(_fade)
+		st.root.add_child(canvas_layer)
+		
+		self.visible = false
+		
+		tween = st.create_tween()
+		tween.tween_property(_fade, "color", CLEAR_COLOR, START_RUNNER_TWEEN_TIME)
+		
+		await tween.finished
+		
+		canvas_layer.queue_free()
+		
+		self.queue_free()
+	)
+	
+	_runners.add_child(item)
+	
+	item.init_favorite(data.favorite)
+	item.title.text = data.name
+	# TODO think about how to set this value from a RunnerData
+#	item.model.text = data.model_path.get_file()
+	item.last_used.text = data.last_used.to_string()
+	item.last_used_datetime = data.last_used
+	# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
+	# directly throws an error in a thread. An indirect error is fine though
+	item.init_preview(data.preview_path)
 
 #-----------------------------------------------------------------------------#
 # Public functions

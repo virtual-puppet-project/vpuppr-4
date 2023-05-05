@@ -3,61 +3,16 @@ extends Resource
 
 const DEFAULT_IMAGE_PATH := "res://assets/VpupprDuck.png"
 
-enum States {
-	NONE,
-	DEFAULT,
-	LEFT,
-	RIGHT,
-	UP,
-	DOWN,
-	CUSTOM
-}
-
-class FaceState extends Resource:
-	@export
-	var state := States.NONE
-	
-	@export
-	var default := ""
-	@export
-	var mouth_open := ""
-	@export
-	var blink := ""
-	@export
-	var joy := ""
-	@export
-	var angry := ""
-	@export
-	var sorrow := ""
-	@export
-	var fun := ""
-
 @export
-var forward := FaceState.new()
+var forward := PngTuberFaceState.new()
 @export
-var left := FaceState.new()
+var left := PngTuberFaceState.new()
 @export
-var right := FaceState.new()
+var right := PngTuberFaceState.new()
 @export
-var up := FaceState.new()
+var up := PngTuberFaceState.new()
 @export
-var down := FaceState.new()
+var down := PngTuberFaceState.new()
 
 @export
 var feature_configs: Array[Resource] = []
-
-#-----------------------------------------------------------------------------#
-# Builtin functions
-#-----------------------------------------------------------------------------#
-
-func _init() -> void:
-	pass
-
-#-----------------------------------------------------------------------------#
-# Private functions
-#-----------------------------------------------------------------------------#
-
-#-----------------------------------------------------------------------------#
-# Public functions
-#-----------------------------------------------------------------------------#
-

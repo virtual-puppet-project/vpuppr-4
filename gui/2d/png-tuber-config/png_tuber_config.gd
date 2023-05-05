@@ -38,7 +38,7 @@ func _ready() -> void:
 		_menus[menu_name] = state
 		state.hide()
 		
-		var face_state: PngTuberConfig.FaceState = config.get(menu_name)
+		var face_state: PngTuberFaceState = config.get(menu_name)
 		for expression in PngTuber.Expressions.values():
 			# TODO this is not great
 			state.get(expression).set_item_path(face_state.get(expression))

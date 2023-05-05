@@ -39,7 +39,7 @@ func _init(config: PngTuberConfig = null) -> void:
 	for state in States.values():
 		_sprites[state] = {}
 
-		var face_state: PngTuberConfig.FaceState = config.get(state)
+		var face_state: PngTuberFaceState = config.get(state)
 
 		for expression in Expressions.values():
 			var path: String = face_state.get(expression)

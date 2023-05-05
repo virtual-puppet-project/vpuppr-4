@@ -1,6 +1,8 @@
 class_name RunnerContext
 extends Node
 
+# TODO this is not good, needs to be rewritten
+
 signal finished_loading()
 
 ## Handler for all runners. Provides utility functions useful for all runners.
@@ -62,48 +64,46 @@ func _init(data: RunnerData) -> void:
 		r.runner = try_load.call(data.runner_path)
 		r.gui = try_load.call(data.gui_path)
 
-		match data.model_path.get_extension().to_lower():
-			"tscn", "scn":
-				var resource: PackedScene = load(data.model_path)
-				if resource == null:
-					return r
+		if data.config is VrmConfig:
+			match data.model_path.get_extension().to_lower():
+				"tscn", "scn":
+					var resource: PackedScene = load(data.model_path)
+					if resource == null:
+						return r
+					
+					r.model = resource.instantiate()
+				"glb":
+					var gltf: GLTFDocument = GLTFDocument.new()
+					var state: GLTFState = GLTFState.new()
 
-				r.model = resource.instantiate()
-			"glb":
-				var gltf: GLTFDocument = GLTFDocument.new()
-				var state: GLTFState = GLTFState.new()
+					var err := gltf.append_from_file(data.model_path, state)
+					if err != OK:
+						return r
 
-				var err := gltf.append_from_file(data.model_path, state)
-				if err != OK:
-					return r
+					r.model = gltf.generate_scene(state)
+					r.model.name = data.model_path.get_file()
 
-				r.model = gltf.generate_scene(state)
-				r.model.name = data.model_path.get_file()
-
-				r.model.set_script(Puppet3D)
-			"vrm":
-				var gltf: GLTFDocument = GLTFDocument.new()
-				var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()
-				GLTFDocument.register_gltf_document_extension(vrm_extension)
-				var state: GLTFState = GLTFState.new()
-
-				var err := gltf.append_from_file(data.model_path, state)
-				if err != OK:
-					GLTFDocument.unregister_gltf_document_extension(vrm_extension)
-					return r
-
-				r.model = gltf.generate_scene(state)
-				GLTFDocument.unregister_gltf_document_extension(vrm_extension)
-			"png":
-				if config.forward.default.is_empty():
-					config.forward.default = PngTuberConfig.DEFAULT_IMAGE_PATH
-				
-				r.model = PngTuber.new(config)
-				
-				# TODO testing
-#				r.model = PngTuber.new()
-			_:
-				pass
+					r.model.set_script(Puppet3D)
+#				"vrm":
+#					var gltf: GLTFDocument = GLTFDocument.new()
+#					var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()
+#					GLTFDocument.register_gltf_document_extension(vrm_extension)
+#					var state: GLTFState = GLTFState.new()
+#
+#					var err := gltf.append_from_file(data.model_path, state)
+#					if err != OK:
+#						GLTFDocument.unregister_gltf_document_extension(vrm_extension)
+#						return r
+#
+#					r.model = gltf.generate_scene(state)
+#					GLTFDocument.unregister_gltf_document_extension(vrm_extension)
+		elif data.config is PngTuberConfig:
+			if config.forward.default.is_empty():
+				config.forward.default = PngTuberConfig.DEFAULT_IMAGE_PATH
+			
+			r.model = PngTuber.new(config)
+		else:
+			_logger.error("Unhandled config: %s" % str(data.config))
 
 		return r
 	)

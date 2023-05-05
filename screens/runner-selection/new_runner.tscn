@@ -19,7 +19,7 @@ grow_vertical = 2
 color = Color(0.113725, 0.133333, 0.160784, 1)
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
@@ -43,7 +43,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Name"
 
-[node name="Name" type="LineEdit" parent="ScrollContainer/VBoxContainer/Name"]
+[node name="NameInput" type="LineEdit" parent="ScrollContainer/VBoxContainer/Name"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -61,21 +61,9 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GuiType" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/GuiType"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Gui Type"
-
-[node name="GuiType" type="OptionButton" parent="ScrollContainer/VBoxContainer/GuiType"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
 [node name="Model" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/Model"]
@@ -97,9 +85,26 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Open"
 
+[node name="GuiType" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/GuiType"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Gui Type"
+
+[node name="GuiType" type="OptionButton" parent="ScrollContainer/VBoxContainer/GuiType"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="Status" type="Label" parent="ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
 layout_mode = 2
@@ -110,6 +115,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 0
+disabled = true
 text = "Confirm"
 
 [node name="Cancel" type="Button" parent="ScrollContainer/VBoxContainer/HBoxContainer"]

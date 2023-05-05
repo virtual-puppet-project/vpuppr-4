@@ -147,6 +147,7 @@ text = "New"
 
 [node name="LoadModel" type="Button" parent="RunnerContainer/VBoxContainer/HFlowContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 focus_mode = 0
 text = "Load Model"
