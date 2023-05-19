@@ -171,8 +171,6 @@ class OpenSeeFace : public AbstractTracker {
     virtual Error start(const Variant **p_args, GDExtensionInt p_arg_count, GDExtensionCallError &p_error) override;
     virtual Error stop() override;
 
-    // static StringName identifier();
-
     void _process(double delta) override;
 
     OpenSeeFace();

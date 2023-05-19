@@ -39,6 +39,10 @@ StringName AbstractTracker::meow_face_identifier() {
     return StringName("MeowFace");
 }
 
+StringName AbstractTracker::mediapipe_identifier() {
+    return StringName("Mediapipe");
+}
+
 void AbstractTracker::_bind_methods() {
     {
         MethodInfo mi;

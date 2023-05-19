@@ -210,10 +210,6 @@ Error MeowFace::stop() {
     return OK;
 }
 
-StringName MeowFace::identifier() {
-    return StringName("MeowFace");
-}
-
 MeowFace::MeowFace() : AbstractTracker() {
     logger->set_logger_name("MeowFace");
 

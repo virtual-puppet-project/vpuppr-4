@@ -3,6 +3,7 @@
 #include <gdextension_interface.h>
 #include <utils/logger.h>
 #include <utils/trackers/abstract_tracker.h>
+#include <utils/trackers/mediapipe.h>
 #include <utils/trackers/meow_face.h>
 #include <utils/trackers/open_see_face.h>
 
@@ -23,6 +24,7 @@ void initialize_vpuppr_module(ModuleInitializationLevel p_level) {
     ClassDB::register_class<OpenSeeFaceData>();
     ClassDB::register_class<MeowFace>();
     ClassDB::register_class<MeowFaceData>();
+    ClassDB::register_class<Mediapipe>();
 }
 
 void uninitialize_vpuppr_module(ModuleInitializationLevel p_level) {

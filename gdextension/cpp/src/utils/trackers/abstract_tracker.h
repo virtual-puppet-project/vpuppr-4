@@ -30,6 +30,7 @@ class AbstractTracker : public Node {
 
     static StringName open_see_face_identifier();
     static StringName meow_face_identifier();
+    static StringName mediapipe_identifier();
 
     AbstractTracker();
     ~AbstractTracker();
