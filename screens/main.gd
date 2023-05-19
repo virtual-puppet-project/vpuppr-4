@@ -16,6 +16,7 @@ func _init() -> void:
 	DisplayServer.window_set_size(new_window_size)
 	DisplayServer.window_set_position((current_screen_size * 0.5) - (new_window_size * 0.5))
 	# TODO for whatever reason, godot tries to move it to screen 1??? So force it to 0
+	# May 23, 2023: This is still true
 	DisplayServer.window_set_current_screen(0)
 
 func _ready() -> void:

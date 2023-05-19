@@ -78,27 +78,12 @@ func _ready() -> void:
 			return
 		
 		_create_runner_item(config)
+		ResourceSaver.save(
+			config,
+			"user://%s.tres" % config.name,
+			ResourceSaver.FLAG_OMIT_EDITOR_PROPERTIES
+		)
 	)
-#	%LoadModel.pressed.connect(func() -> void:
-#		var popup := FileDialog.new()
-#		popup.current_dir = "" # TODO pull from config
-#		popup.add_filter("*.glb", "GLB models")
-#		popup.add_filter("*.vrm", "VRM models")
-#		# TODO pull more supported formats from config?
-#		popup.access = FileDialog.ACCESS_FILESYSTEM
-#		popup.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-#
-#		add_child(popup)
-#		popup.popup_centered_ratio(0.5)
-#
-#		var file_dialog_hide := handle_popup_hide.bind(popup)
-#		popup.visibility_changed.connect(file_dialog_hide)
-#		popup.close_requested.connect(file_dialog_hide)
-#
-#		popup.file_selected.connect(func(path: String) -> void:
-#			_logger.debug(path)
-#		)
-#	)
 	%Settings.pressed.connect(func() -> void:
 		# Reuse the old settings popup
 		if _settings_popup != null:
@@ -223,75 +208,9 @@ func _ready() -> void:
 			
 			dir.list_dir_end()
 			
-#			var png := RunnerData.new()
-#			png.name = "PNGTuber"
-#			png.runner_path = "res://screens/runners/png_tuber_runner.tscn"
-#			png.gui_path = "res://gui/standard_gui.tscn"
-#			png.config = PngTuberConfig.new()
-#			# TODO this should be reading from a resource file
-#			png.preview_path = "C:/Users/theaz/Pictures/astro.png"
-#			png.gui_menus = [
-#				GuiMenu.new("PNG Tuber", "res://gui/2d/png-tuber-config/png_tuber_config.tscn"),
-#				GuiMenu.new("Tracking", "res://gui/tracking.tscn"),
-#				GuiMenu.new("Mic Input", "res://gui/mic_input.tscn")
-#			]
-#
-#			r.push_back(png)
-			
 			return r
 		).call():
 			_create_runner_item(data)
-#			var item := RunnerItem.instantiate()
-#			item.clicked.connect(func() -> void:
-#				_loading_spinner.start()
-#				var handler: RunnerContext = await RunnerContext.new(data)
-#				await handler.finished_loading
-#				_loading_spinner.stop()
-#				if handler.get_child_count() < 1:
-#					_logger.error(
-#						"An error occurred while loading the runner, declining to start handler")
-#					handler.queue_free()
-#					return
-#
-#				var st := get_tree()
-#
-#				var tween := st.create_tween()
-#				tween.tween_property(_fade, "color", Color.BLACK, START_RUNNER_TWEEN_TIME)
-#
-#				await tween.finished
-#
-#				st.root.add_child(handler)
-#				st.current_scene = handler
-#
-#				# TODO (Tim Yuen) weird hack to force the fade effect to continue when the
-#				# current_scene has changed
-#				remove_child(_fade)
-#				var canvas_layer := CanvasLayer.new()
-#				canvas_layer.add_child(_fade)
-#				st.root.add_child(canvas_layer)
-#
-#				self.visible = false
-#
-#				tween = st.create_tween()
-#				tween.tween_property(_fade, "color", CLEAR_COLOR, START_RUNNER_TWEEN_TIME)
-#
-#				await tween.finished
-#
-#				canvas_layer.queue_free()
-#
-#				self.queue_free()
-#			)
-#
-#			_runners.add_child(item)
-#
-#			item.init_favorite(data.favorite)
-#			item.title.text = data.name
-#			item.model.text = data.model_path.get_file()
-#			item.last_used.text = data.last_used.to_string()
-#			item.last_used_datetime = data.last_used
-#			# TODO (Tim Yuen) currently needed since Godot threads don't like it when a function
-#			# directly throws an error in a thread. An indirect error is fine though
-#			item.init_preview(data.preview_path)
 	)
 	
 	_runner_container.hide()

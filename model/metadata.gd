@@ -7,6 +7,9 @@ var runners: Array[RunnerData] = []
 var default_fs_search_path := ""
 
 @export
+var use_system_window_decoration := true
+
+@export
 var msaa_2d: int = 0
 @export
 var msaa_3d: int = 0
