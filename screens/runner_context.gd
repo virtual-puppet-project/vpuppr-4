@@ -64,43 +64,63 @@ func _init(data: RunnerData) -> void:
 		r.runner = try_load.call(data.runner_path)
 		r.gui = try_load.call(data.gui_path)
 
-		if data.config is VrmConfig:
-			match data.model_path.get_extension().to_lower():
+		if config is VrmConfig:
+			# TODO shadowing this variable here causes a crash. As of May 18, 2023, not able to create minimal repro project
+			config = config as VrmConfig
+
+			match config.model_path.get_extension().to_lower():
 				"tscn", "scn":
-					var resource: PackedScene = load(data.model_path)
+					var resource: PackedScene = load(config.model_path)
 					if resource == null:
+						_logger.error("Unable to handle resource file at %s" % config.model_path)
 						return r
-					
+
 					r.model = resource.instantiate()
 				"glb":
 					var gltf: GLTFDocument = GLTFDocument.new()
 					var state: GLTFState = GLTFState.new()
 
-					var err := gltf.append_from_file(data.model_path, state)
+					var err := gltf.append_from_file(data.config.model_path, state)
 					if err != OK:
 						return r
 
 					r.model = gltf.generate_scene(state)
-					r.model.name = data.model_path.get_file()
+					r.model.name = data.config.model_path.get_file()
 
 					r.model.set_script(Puppet3D)
-#				"vrm":
-#					var gltf: GLTFDocument = GLTFDocument.new()
-#					var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()
-#					GLTFDocument.register_gltf_document_extension(vrm_extension)
-#					var state: GLTFState = GLTFState.new()
-#
-#					var err := gltf.append_from_file(data.model_path, state)
-#					if err != OK:
-#						GLTFDocument.unregister_gltf_document_extension(vrm_extension)
-#						return r
-#
-#					r.model = gltf.generate_scene(state)
-#					GLTFDocument.unregister_gltf_document_extension(vrm_extension)
+				"vrm":
+					var gltf: GLTFDocument = GLTFDocument.new()
+					var vrm_extension: GLTFDocumentExtension = preload("res://addons/vrm/vrm_extension.gd").new()
+					gltf.register_gltf_document_extension(vrm_extension, true)
+					print("after register")
+
+
+					var state: GLTFState = GLTFState.new()
+					state.handle_binary_image = GLTFState.HANDLE_BINARY_EMBED_AS_BASISU
+
+					print("before append from file")
+
+					var err = gltf.append_from_file(data.config.model_path, state)
+					if err != OK:
+						gltf.unregister_gltf_document_extension(vrm_extension)
+						return r
+
+					print("after unregister")
+					var generated_scene = gltf.generate_scene(state)
+					if generated_scene == null:
+						return r
+
+					gltf.unregister_gltf_document_extension(vrm_extension)
+
+					r.model = generated_scene
+					r.model_name = data.config.model_path.get_file()
+
+					# TODO change to vrm-specific code later
+					r.model.set_script(Puppet3D)
 		elif data.config is PngTuberConfig:
 			if config.forward.default.is_empty():
 				config.forward.default = PngTuberConfig.DEFAULT_IMAGE_PATH
-			
+
 			r.model = PngTuber.new(config)
 		else:
 			_logger.error("Unhandled config: %s" % str(data.config))
@@ -114,12 +134,12 @@ func _init(data: RunnerData) -> void:
 
 	var load_results: Dictionary = loading_thread.wait_to_finish()
 	
-	runner = load_results.runner
+	runner = load_results.get("runner", null)
 	if runner == null or _set_context(runner) != OK:
 		fail_alert.call("Unable to load runner, bailing out!")
 		return
 
-	gui = load_results.gui
+	gui = load_results.get("gui", null)
 	if gui == null or _set_context(gui) != OK:
 		fail_alert.call("Unable to load gui, bailing out!")
 		return
@@ -127,7 +147,7 @@ func _init(data: RunnerData) -> void:
 	for datum in data.gui_menus:
 		gui.add_menu(datum.menu_name, datum.path)
 	
-	var model: Node = load_results.model
+	var model: Node = load_results.get("model", null)
 	if model == null or _set_context(model) != OK:
 		fail_alert.call("Unable to load model, bailing out!")
 		return
